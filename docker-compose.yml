@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: safiri
+      POSTGRES_PASSWORD: safiri
+      POSTGRES_DB: safiri_nasi
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U safiri -d safiri_nasi"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+
+  backend:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://safiri:safiri@db:5432/safiri_nasi
+      SMTP_HOST: mailpit
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/uploads:/app/uploads
+    profiles: ["full"]
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      API_URL_INTERNAL: http://backend:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    profiles: ["full"]
+
+volumes:
+  pgdata:
