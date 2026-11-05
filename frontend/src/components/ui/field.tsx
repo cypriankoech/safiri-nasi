@@ -55,9 +55,16 @@ export function Field({
   className?: string;
   htmlFor?: string;
 }) {
+  // Without an explicit htmlFor, the label wraps the control so they stay associated.
+  const Wrapper = label && !htmlFor ? "label" : "div";
   return (
-    <div className={className}>
-      {label && <Label htmlFor={htmlFor}>{label}</Label>}
+    <Wrapper className={cn("block", className)}>
+      {label &&
+        (htmlFor ? (
+          <Label htmlFor={htmlFor}>{label}</Label>
+        ) : (
+          <span className="mb-1.5 block text-sm font-semibold text-text">{label}</span>
+        ))}
       {children}
       {error ? (
         <p className="mt-1 text-sm text-danger" role="alert">
@@ -66,7 +73,7 @@ export function Field({
       ) : hint ? (
         <p className="mt-1 text-xs text-muted">{hint}</p>
       ) : null}
-    </div>
+    </Wrapper>
   );
 }
 
