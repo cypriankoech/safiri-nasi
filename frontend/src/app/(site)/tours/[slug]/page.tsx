@@ -52,12 +52,8 @@ export async function generateMetadata({ params }: PageProps<"/tours/[slug]">): 
 
 export default async function TourPage({ params, searchParams }: PageProps<"/tours/[slug]">) {
   const { slug } = await params;
-  const [tour, site, reviews, related] = await Promise.all([
-    loadTour(slug),
-    getSite(),
-    getTourReviews(slug),
-    getRelatedTours(slug),
-  ]);
+  const tour = await loadTour(slug);
+  const [site, reviews, related] = await Promise.all([getSite(), getTourReviews(slug), getRelatedTours(slug)]);
   const fx = site.settings.usd_to_kes;
   const images = [tour.hero_image, ...tour.gallery].filter(Boolean) as string[];
 
