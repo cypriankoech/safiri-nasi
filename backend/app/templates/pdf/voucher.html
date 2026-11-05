@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}TRAVEL VOUCHER{% endblock %}{% block ref %}{{ b.reference }}{% endblock %}
+{% block content %}
+<div class="grid">
+  <div class="card"><h3>Trip</h3><strong>{{ b.tour.title }}</strong><br>{{ dates }}<br>{{ b.tour.duration_days }} days / {{ b.tour.duration_nights }} nights</div>
+  <div class="card"><h3>Meeting point</h3>{{ b.tour.start_location or "We'll confirm your pick-up details before departure" }}<br><span class="muted">Transport:</span> {{ b.tour.transport or "-" }}</div>
+  <div class="card"><h3>Status</h3><span class="badge {% if b.balance > 0 %}warn{% endif %}">{{ status_label }}</span>{% if b.balance > 0 %}<br>Balance {{ fmt(b.balance) }} due by {{ balance_due }}{% endif %}</div>
+</div>
+<h2>Travellers</h2>
+<table class="items"><tr><th>Name</th><th>Type</th><th>Nationality</th><th>Dietary needs</th></tr>
+{% for t in b.travellers %}<tr><td>{{ t.full_name }}{% if t.is_lead %} (lead){% endif %}</td><td>{{ t.traveller_type|title }}</td><td>{{ t.nationality or "-" }}</td><td>{{ t.dietary or "-" }}</td></tr>{% endfor %}
+</table>
+{% if b.tour.itinerary %}<h2>Itinerary</h2>
+<table class="items"><tr><th>Day</th><th>Plan</th><th>Overnight</th><th>Meals</th></tr>
+{% for d in b.tour.itinerary %}<tr><td>{{ d.day_number }}</td><td><strong>{{ d.title }}</strong></td><td>{{ d.accommodation or "-" }}</td><td>{{ d.meals or "-" }}</td></tr>{% endfor %}
+</table>{% endif %}
+{% if b.special_requests %}<h2>Special requests</h2><p>{{ b.special_requests }}</p>{% endif %}
+<h2>Emergency contact</h2>
+<p>{{ site.company_name }}, {{ site.phone }} (24/7 during your trip). WhatsApp: +{{ site.whatsapp }}</p>
+<p class="note">Please carry this voucher (printed or on your phone) together with your ID or passport.</p>
+{% endblock %}

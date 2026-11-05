@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="margin:0 0 8px;color:#1E3B1C;">We've got your request, {{ e.first_name }}!</h2>
+<p>Thank you for reaching out. A Safiri Nasi travel expert will get back to you within one working day with ideas and a quote.</p>
+<p style="font-size:13px;color:#5E6455;">Need us sooner? WhatsApp us on <a href="https://wa.me/{{ site.whatsapp }}" style="color:#1E3B1C;">+{{ site.whatsapp }}</a>.</p>
+{% endblock %}

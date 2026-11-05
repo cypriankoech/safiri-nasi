@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% from "_macros.html" import button, summary %}
+{% block content %}
+<h2 style="margin:0 0 8px;color:#1E3B1C;">{{ days }} days to your balance due date</h2>
+<p>Hi {{ b.first_name }}, your <strong>{{ b.tour_title }}</strong> trip is coming up on {{ b.travel_date }}. Please pay the balance of <strong>{{ b.balance }}</strong> by <strong>{{ b.balance_due_date }}</strong> to keep your booking.</p>
+{{ summary(b) }}
+{{ button(b.manage_url, "Pay balance") }}
+{% endblock %}

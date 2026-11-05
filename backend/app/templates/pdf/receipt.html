@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}RECEIPT{% endblock %}{% block ref %}{{ p.reference }}{% endblock %}
+{% block content %}
+<div class="grid">
+  <div class="card"><h3>Received from</h3><strong>{{ b.contact_name }}</strong><br>{{ b.contact_email }}<br>{{ b.contact_phone }}</div>
+  <div class="card"><h3>For booking</h3><strong>{{ b.reference }}</strong><br>{{ b.tour.title }}<br>{{ dates }}</div>
+</div>
+<table class="items">
+  <tr><th>Payment method</th><th>Provider receipt</th><th>Date</th><th class="num">Amount</th></tr>
+  <tr><td>{{ method }}</td><td>{{ p.receipt_number or "-" }}</td><td>{{ paid_on }}</td><td class="num">{{ amount }}</td></tr>
+</table>
+{% if p.currency != b.currency %}<p class="muted">Credited to the booking as {{ fmt(p.booking_amount) }} at {{ p.fx_rate }} KES/USD.</p>{% endif %}
+<table class="totals">
+  <tr><td>Booking total</td><td class="num">{{ fmt(b.total) }}</td></tr>
+  <tr><td>Paid to date</td><td class="num">{{ fmt(b.amount_paid) }}</td></tr>
+  <tr class="grand"><td>Balance</td><td class="num">{{ fmt(b.balance) }}</td></tr>
+</table>
+<p class="note">Thank you for travelling with {{ site.company_name }}. Keep this receipt for your records.</p>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% macro button(url, label) -%}
+<table role="presentation" cellspacing="0" cellpadding="0" style="margin:22px 0;"><tr><td style="background:#7DC242;border-radius:999px;">
+<a href="{{ url }}" style="display:inline-block;padding:13px 26px;color:#1E3B1C;font-weight:700;text-decoration:none;">{{ label }}</a>
+</td></tr></table>
+{%- endmacro %}
+{% macro summary(b) -%}
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#FBF6EC;border-radius:12px;padding:16px;margin:16px 0;font-size:14px;">
+  <tr><td style="padding:4px 0;color:#5E6455;">Booking reference</td><td align="right" style="font-weight:700;">{{ b.reference }}</td></tr>
+  <tr><td style="padding:4px 0;color:#5E6455;">Trip</td><td align="right">{{ b.tour_title }}</td></tr>
+  <tr><td style="padding:4px 0;color:#5E6455;">Dates</td><td align="right">{{ b.travel_date }} – {{ b.end_date }}</td></tr>
+  <tr><td style="padding:4px 0;color:#5E6455;">Travellers</td><td align="right">{{ b.adults }} adult{{ 's' if b.adults != 1 }}{% if b.children %}, {{ b.children }} child{{ 'ren' if b.children != 1 }}{% endif %}</td></tr>
+  <tr><td style="padding:4px 0;color:#5E6455;">Total</td><td align="right">{{ b.total }}</td></tr>
+  <tr><td style="padding:4px 0;color:#5E6455;">Paid</td><td align="right" style="color:#3C7A1E;">{{ b.amount_paid }}</td></tr>
+  <tr><td style="padding:4px 0;color:#5E6455;">Balance</td><td align="right" style="font-weight:700;">{{ b.balance }}</td></tr>
+</table>
+{%- endmacro %}

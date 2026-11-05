@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="margin:0 0 8px;color:#1E3B1C;">{{ title }}</h2>
+<table role="presentation" cellspacing="0" cellpadding="0" style="font-size:14px;">
+{% for k, v in rows %}<tr><td style="padding:3px 16px 3px 0;color:#5E6455;">{{ k }}</td><td>{{ v }}</td></tr>{% endfor %}
+</table>
+{% if url %}<p><a href="{{ url }}" style="color:#1E3B1C;font-weight:700;">Open in admin →</a></p>{% endif %}
+{% endblock %}

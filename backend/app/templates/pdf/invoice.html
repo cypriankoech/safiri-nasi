@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}INVOICE{% endblock %}{% block ref %}{{ b.reference }}{% endblock %}
+{% block content %}
+<div class="grid">
+  <div class="card"><h3>Billed to</h3><strong>{{ b.contact_name }}</strong><br>{{ b.contact_email }}<br>{{ b.contact_phone }}{% if b.contact_country %}<br>{{ b.contact_country }}{% endif %}</div>
+  <div class="card"><h3>Trip</h3><strong>{{ b.tour.title }}</strong><br>{{ dates }}<br>{{ b.adults }} adult(s){% if b.children %}, {{ b.children }} child(ren){% endif %}<br>Rate: {{ rate_label }}</div>
+  <div class="card"><h3>Status</h3><span class="badge {% if b.balance > 0 %}warn{% endif %}">{{ status_label }}</span><br><span class="muted">Balance due by</span><br>{{ balance_due }}</div>
+</div>
+<table class="items">
+  <tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr>
+  {% for i in b.line_items %}<tr><td>{{ i.label }}</td><td class="num">{{ i.quantity }}</td><td class="num">{{ fmt(i.unit_price) }}</td><td class="num">{{ fmt(i.amount) }}</td></tr>{% endfor %}
+</table>
+<table class="totals">
+  <tr><td>Subtotal</td><td class="num">{{ fmt(b.subtotal) }}</td></tr>
+  {% if b.discount > 0 %}<tr><td>Discount{% if b.promo_code %} ({{ b.promo_code }}){% endif %}</td><td class="num">−{{ fmt(b.discount) }}</td></tr>{% endif %}
+  <tr class="grand"><td>Total</td><td class="num">{{ fmt(b.total) }}</td></tr>
+  <tr><td>Paid to date</td><td class="num">{{ fmt(b.amount_paid) }}</td></tr>
+  <tr class="grand"><td>Balance due</td><td class="num">{{ fmt(b.balance) }}</td></tr>
+</table>
+{% if payments %}<h2>Payments received</h2>
+<table class="items"><tr><th>Date</th><th>Method</th><th>Receipt</th><th class="num">Amount</th></tr>
+{% for p in payments %}<tr><td>{{ p.date }}</td><td>{{ p.method }}</td><td>{{ p.receipt }}</td><td class="num">{{ p.amount }}</td></tr>{% endfor %}
+</table>{% endif %}
+{% if b.balance > 0 %}<h2>How to pay</h2>
+<p>Pay online at <strong>{{ manage_url_short }}</strong> by M-Pesa, Airtel Money or card, or send money to M-Pesa Paybill <strong>{{ site.mpesa_paybill }}</strong> with account number <strong>{{ b.reference }}</strong>.
+{% if site.bank_details.account_number %}<br>Bank: {{ site.bank_details.bank_name }}, A/C {{ site.bank_details.account_number }} ({{ site.bank_details.account_name }}){% if site.bank_details.swift_code %}, SWIFT {{ site.bank_details.swift_code }}{% endif %}. Use {{ b.reference }} as the reference.{% endif %}</p>{% endif %}
+<p class="note">{{ b.tour.cancellation_policy or "Cancellation terms are set out in our booking policy at safirinasi.co.ke/booking-policy." }}</p>
+{% endblock %}

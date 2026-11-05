@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% from "_macros.html" import button, summary %}
+{% block content %}
+<h2 style="margin:0 0 8px;color:#1E3B1C;">Payment received. Asante!</h2>
+<p>We've received <strong>{{ p.amount }}</strong> via {{ p.method_label }}{% if p.receipt_number %} (receipt <strong>{{ p.receipt_number }}</strong>){% endif %} for booking {{ b.reference }}.</p>
+{% if milestone == 'confirmed' %}<p>Your booking is now <strong style="color:#3C7A1E;">confirmed</strong>. The balance of {{ b.balance }} is due by <strong>{{ b.balance_due_date }}</strong>.</p>{% endif %}
+{% if milestone == 'fully_paid' %}<p>Your trip is <strong style="color:#3C7A1E;">fully paid</strong>. Your travel voucher is ready to download.</p>{% endif %}
+{{ summary(b) }}
+{{ button(b.manage_url, "View booking & documents") }}
+{% endblock %}

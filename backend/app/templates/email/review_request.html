@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% from "_macros.html" import button %}
+{% block content %}
+<h2 style="margin:0 0 8px;color:#1E3B1C;">Welcome back, {{ b.first_name }}!</h2>
+<p>We hope <strong>{{ b.tour_title }}</strong> was unforgettable. Would you share a quick review? It helps other travellers, and it helps us get even better.</p>
+{{ button(b.review_url, "Write a review") }}
+{% endblock %}
