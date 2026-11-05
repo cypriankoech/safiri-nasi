@@ -5,7 +5,7 @@ from fastapi import APIRouter, Cookie, HTTPException, Response, status
 from sqlalchemy import func, select, update
 
 from app.config import settings
-from app.deps import ACCESS_COOKIE, DB, REFRESH_COOKIE, CurrentUser
+from app.deps import ACCESS_COOKIE, DB, REFRESH_COOKIE, CurrentUser, OptionalUser
 from app.models import Booking, User
 from app.schemas.auth import LoginIn, PasswordChange, ProfileUpdate, RegisterIn, UserOut
 from app.schemas.common import Message
@@ -135,3 +135,21 @@ async def change_password(data: PasswordChange, user: CurrentUser, db: DB, respo
     await db.refresh(user)
     _set_session(response, user)
     return Message(message="Password updated")
+
+
+@router.get("/session", response_model=UserOut | None)
+async def session(
+    db: DB, response: Response, user: OptionalUser, sn_refresh: Annotated[str | None, Cookie()] = None
+):
+    """Current user or null (never 401), renewing an expired access token from the refresh cookie."""
+    if user:
+        return user
+    payload = decode_token(sn_refresh or "", "refresh")
+    if not payload:
+        return None
+    user = await db.get(User, int(payload["sub"]))
+    if not user or not user.is_active or payload.get("ver") != user.token_version:
+        _clear_session(response)
+        return None
+    _set_session(response, user)
+    return user

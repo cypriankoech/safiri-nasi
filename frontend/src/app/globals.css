@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Brand palette, sampled from the Safiri Nasi logo */
+:root {
+  --forest: #1e3b1c;
+  --forest-deep: #132612;
+  --lime: #7dc242;
+  --lime-strong: #5f9e2c;
+  --sun: #f29f1d;
+  --sun-strong: #d9850a;
+  --olive: #8f8f1e;
+  --maroon: #7a2a2a;
+
+  --bg: #fbf6ec;
+  --surface: #ffffff;
+  --surface-2: #f5eedf;
+  --surface-3: #ece2cc;
+  --text: #22261f;
+  --muted: #5e6455;
+  --border: #e6dcc6;
+  --primary: var(--forest);
+  --primary-fg: #ffffff;
+  --accent: var(--lime);
+  --accent-fg: var(--forest-deep);
+  --ring: #7dc24288;
+  --success: #3c7a1e;
+  --success-bg: #e6f4d7;
+  --warning: #8a5300;
+  --warning-bg: #fdefd6;
+  --danger: #a12d2d;
+  --danger-bg: #fbe3e1;
+  --shadow: 0 10px 30px -12px rgb(30 59 28 / 0.25);
+}
+
+.dark {
+  --bg: #0f160e;
+  --surface: #172015;
+  --surface-2: #1e2a1b;
+  --surface-3: #283624;
+  --text: #edf1e6;
+  --muted: #a7b09b;
+  --border: #2f3e2b;
+  --primary: var(--lime);
+  --primary-fg: #10200e;
+  --accent: var(--lime);
+  --accent-fg: #10200e;
+  --maroon: #e38b7c;
+  --olive: #c8c860;
+  --success: #9ad46c;
+  --success-bg: #22361a;
+  --warning: #f5be63;
+  --warning-bg: #3a2c12;
+  --danger: #f19087;
+  --danger-bg: #3d1d1b;
+  --shadow: 0 10px 30px -12px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-forest: var(--forest);
+  --color-forest-deep: var(--forest-deep);
+  --color-lime: var(--lime);
+  --color-lime-strong: var(--lime-strong);
+  --color-sun: var(--sun);
+  --color-sun-strong: var(--sun-strong);
+  --color-olive: var(--olive);
+  --color-maroon: var(--maroon);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-body), ui-sans-serif, sans-serif;
+  --font-hand: var(--font-hand), cursive;
+
+  --shadow-soft: var(--shadow);
+  --radius-xl2: 1.25rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--lime);
+  color: var(--forest-deep);
+}
+
+:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+
+/* Long-form content (blog, policies) */
+.prose-safiri {
+  line-height: 1.75;
+  color: var(--text);
+}
+.prose-safiri h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 2rem 0 0.75rem;
+  color: var(--primary);
+}
+.prose-safiri h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.5rem;
+}
+.prose-safiri p,
+.prose-safiri ul,
+.prose-safiri ol {
+  margin: 0 0 1rem;
+}
+.prose-safiri ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.prose-safiri ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.prose-safiri a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-safiri strong {
+  font-weight: 700;
+}
+
+/* Leaflet sits under sticky headers */
+.leaflet-container {
+  z-index: 0;
+  font-family: var(--font-sans);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

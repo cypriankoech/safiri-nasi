@@ -60,6 +60,10 @@ def tour_card(tour: Tour, currency: str, rate: str, fx: Decimal, model=TourCard)
     card = model.model_validate(tour)
     price = from_price(tour, rate, currency, fx)
     card.from_price = FromPrice(**price) if price else None
+    resident = from_price(tour, RateCategory.resident, Currency.KES, fx)
+    visitor = from_price(tour, RateCategory.non_resident, Currency.USD, fx)
+    card.resident_from = FromPrice(**resident) if resident else None
+    card.non_resident_from = FromPrice(**visitor) if visitor else None
     upcoming = upcoming_departures(tour)
     if upcoming:
         card.next_departure = upcoming[0].start_date

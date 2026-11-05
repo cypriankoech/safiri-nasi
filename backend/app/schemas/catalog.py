@@ -115,6 +115,9 @@ class TourCard(ORM):
     deal_label: str | None
     valid_to: date | None
     from_price: FromPrice | None = None
+    # Always both headline prices, so cards can show locals and visitors their rate.
+    resident_from: FromPrice | None = None
+    non_resident_from: FromPrice | None = None
     next_departure: date | None = None
     next_departure_seats: int | None = None
 
