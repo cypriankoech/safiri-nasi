@@ -17,10 +17,12 @@ import { CategoryIcon } from "@/components/site/category-icon";
 import { PaymentLogos } from "@/components/site/payment-logos";
 import { SearchBar } from "@/components/site/search-bar";
 import { TourCard } from "@/components/site/tour-card";
+import { VideoReel } from "@/components/site/video-reel";
 import { WhatsAppIcon } from "@/components/site/whatsapp-button";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge, Container, SectionHeading, Stars } from "@/components/ui/misc";
 import { dateRange, fmtShortDate } from "@/lib/format";
+import { TRIP_CLIPS } from "@/lib/media";
 import {
   getBlog,
   getDestinations,
@@ -195,6 +197,18 @@ export default async function HomePage() {
           </div>
         </Container>
       )}
+
+      {/* Trip footage */}
+      <section className="py-14">
+        <Container>
+          <SectionHeading
+            eyebrow="Hakuna filter"
+            title="Straight from our game drives"
+            subtitle="Real moments filmed by our guides and travellers. This is what a day out with Safiri Nasi looks like."
+          />
+          <VideoReel clips={TRIP_CLIPS} />
+        </Container>
+      </section>
 
       {/* Destinations */}
       <Container className="py-14">

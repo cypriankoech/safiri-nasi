@@ -46,7 +46,23 @@ from app.services.pricing import money
 IMAGES = json.loads((Path(__file__).parent / "seed_images.json").read_text())
 
 
+# Safiri Nasi's own trip photos, served by the website from /media/photos.
+OWN_PHOTOS = {
+    "own_lions_vehicle": "lions-walking-by-safari-landcruiser",
+    "own_hippos": "hippos-on-riverbank",
+    "own_lion": "male-lion-in-tall-grass",
+    "own_lionesses": "lionesses-in-grassland",
+    "own_cheetah": "cheetah-with-gazelles",
+    "own_dunes": "travellers-on-sand-dunes",
+    "own_elephants": "elephant-family-on-plains",
+    "own_rhino": "white-rhino-grazing",
+    "own_buffalo": "cape-buffalo-on-plains",
+}
+
+
 def img(key: str) -> str:
+    if key in OWN_PHOTOS:
+        return f"/media/photos/{OWN_PHOTOS[key]}.webp"
     return IMAGES[key]["thumb"]
 
 
@@ -60,7 +76,7 @@ CATEGORIES = [
         "safari",
         "Game drives across Kenya's legendary parks and reserves.",
         "binoculars",
-        "mara_lion",
+        "own_lion",
     ),
     ("Beach & Coast", "beach", "White sand, warm Indian Ocean water and Swahili culture.", "palm", "diani"),
     ("Staycations", "staycations", "Easy weekend escapes close to Nairobi.", "tent", "naivasha"),
@@ -83,6 +99,7 @@ DESTINATIONS = [
         name="Maasai Mara",
         region="kenya",
         country="Kenya",
+        gallery=["own_lion", "own_cheetah", "own_hippos", "own_buffalo", "own_lionesses", "own_elephants"],
         image="mara_balloon",
         lat=-1.4061,
         lng=35.0081,
@@ -103,6 +120,7 @@ DESTINATIONS = [
         name="Amboseli",
         region="kenya",
         country="Kenya",
+        gallery=["amboseli_elephants", "own_elephants"],
         image="amboseli",
         lat=-2.6527,
         lng=37.2606,
@@ -176,6 +194,7 @@ DESTINATIONS = [
         name="Lake Nakuru",
         region="kenya",
         country="Kenya",
+        gallery=["own_rhino", "nakuru_rhino", "flamingo"],
         image="nakuru",
         lat=-0.3667,
         lng=36.0833,
@@ -215,6 +234,7 @@ DESTINATIONS = [
         name="Nairobi",
         region="kenya",
         country="Kenya",
+        gallery=["own_lions_vehicle", "own_rhino", "giraffe_centre"],
         image="nairobi_np",
         lat=-1.2921,
         lng=36.8219,
@@ -327,7 +347,7 @@ def tour_defs():
             transport="4x4 Land Cruiser with pop-up roof",
             accommodation_level="Budget",
             hero="mara_balloon",
-            gallery=["mara", "mara_lion", "cheetah", "safari_vehicle"],
+            gallery=["own_lion", "own_cheetah", "own_buffalo", "own_lionesses", "mara"],
             featured=True,
             deposit=30,
             balance_days=14,
@@ -422,7 +442,7 @@ def tour_defs():
             transport="4x4 Land Cruiser",
             accommodation_level="Mid-range",
             hero="migration",
-            gallery=["mara", "mara_balloon", "cheetah"],
+            gallery=["own_hippos", "own_elephants", "own_cheetah", "mara_balloon"],
             featured=True,
             deposit=40,
             balance_days=45,
@@ -489,7 +509,7 @@ def tour_defs():
             transport="4x4 Land Cruiser",
             accommodation_level="Mid-range",
             hero="amboseli",
-            gallery=["amboseli_elephants", "tsavo", "safari_vehicle"],
+            gallery=["amboseli_elephants", "own_elephants", "tsavo"],
             featured=True,
             summary="Elephants beneath Kilimanjaro, then Tsavo's springs and lava flows.",
             description="Two very different parks in one trip. Amboseli gives you the classic shot of elephants "
@@ -547,7 +567,7 @@ def tour_defs():
             transport="Safari minivan",
             accommodation_level="Mid-range",
             hero="naivasha",
-            gallery=["nakuru", "nakuru_rhino", "hellsgate"],
+            gallery=["nakuru", "own_rhino", "hellsgate"],
             deal_label="Weekend favourite",
             summary="A weekend of hippos, flamingos and rhinos in the Rift Valley.",
             description="Saturday morning on Lake Naivasha in a boat among hippos and fish eagles, then on to Lake "
@@ -746,8 +766,8 @@ def tour_defs():
             start="Your Nairobi hotel",
             end="Your Nairobi hotel",
             transport="4x4 Land Cruiser",
-            hero="nairobi_np",
-            gallery=["giraffe_centre"],
+            hero="own_lions_vehicle",
+            gallery=["own_rhino", "nairobi_np", "giraffe_centre"],
             featured=True,
             summary="Lions with a skyline view in the morning, feed giraffes in the afternoon.",
             description="Ideal for a layover or your first day in Kenya. Morning game drive in Nairobi National Park, "
@@ -851,7 +871,7 @@ def tour_defs():
             transport="4x4 Land Cruiser",
             accommodation_level="Mid-range",
             hero="samburu",
-            gallery=["samburu2", "cheetah"],
+            gallery=["samburu2", "own_buffalo"],
             summary="Find the northern specials along the Ewaso Nyiro river.",
             description="Drive north past Mount Kenya to Samburu, where the Ewaso Nyiro river draws elephants, "
             "leopards and five species you won't see further south.",
@@ -895,7 +915,7 @@ def tour_defs():
             transport="Private 4x4 Land Cruiser",
             accommodation_level="Luxury",
             hero="mara_lion",
-            gallery=["amboseli", "nakuru", "mara_balloon"],
+            gallery=["own_lionesses", "own_cheetah", "amboseli", "own_rhino", "mara_balloon"],
             featured=True,
             deposit=40,
             balance_days=60,
@@ -1453,6 +1473,7 @@ async def seed(demo: bool) -> None:
                 summary=d["summary"],
                 description=d["description"],
                 hero_image=img(d["image"]),
+                gallery=[img(k) for k in d.get("gallery", [])],
                 best_time=d["best_time"],
                 highlights=d["highlights"],
                 latitude=d["lat"],

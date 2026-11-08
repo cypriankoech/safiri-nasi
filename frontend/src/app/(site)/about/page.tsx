@@ -40,6 +40,21 @@ export default async function AboutPage() {
           </div>
         )}
       </Container>
+      <Container className="pb-16">
+        <figure className="relative overflow-hidden rounded-[2rem]">
+          <Image
+            src="/media/photos/travellers-on-sand-dunes.webp"
+            alt="A Safiri Nasi group exploring sand dunes"
+            width={1080}
+            height={470}
+            sizes="(min-width: 1280px) 1216px, 100vw"
+            className="h-auto w-full object-cover"
+          />
+          <figcaption className="absolute bottom-0 left-0 m-4 rounded-full bg-forest-deep/75 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
+            One of our group trips, out exploring the dunes
+          </figcaption>
+        </figure>
+      </Container>
       <section className="bg-forest py-16 text-white">
         <Container>
           <h2 className="text-3xl font-extrabold">What we stand for</h2>

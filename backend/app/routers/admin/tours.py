@@ -187,6 +187,9 @@ async def _apply(db: DB, tour: Tour, data: TourIn) -> None:
     tour.itinerary = [
         ItineraryDay(**d.model_dump()) for d in sorted(data.itinerary, key=lambda d: d.day_number)
     ]
+    # Update rows in place: replacing them would insert before deleting and trip the
+    # (tour, rate, currency) unique constraint.
+    existing_prices = {(p.rate_category, p.currency): p for p in tour.prices}
     seen = set()
     prices = []
     for p in data.prices:
@@ -196,7 +199,13 @@ async def _apply(db: DB, tour: Tour, data: TourIn) -> None:
                 status.HTTP_422_UNPROCESSABLE_ENTITY, f"Duplicate price for {key[0]} {key[1]}"
             )
         seen.add(key)
-        prices.append(TourPrice(**p.model_dump()))
+        row = existing_prices.get(key)
+        if row:
+            for k, v in p.model_dump().items():
+                setattr(row, k, v)
+        else:
+            row = TourPrice(**p.model_dump())
+        prices.append(row)
     tour.prices = prices
     existing = {a.id: a for a in tour.add_ons}
     kept = []

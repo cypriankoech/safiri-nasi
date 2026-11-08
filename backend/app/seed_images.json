@@ -70,11 +70,11 @@
   "artist": "Shadychiri"
  },
  "nakuru": {
-  "title": "File:Flamingos in Lake Nakuru.jpg",
-  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Flamingos_in_Lake_Nakuru.jpg/1920px-Flamingos_in_Lake_Nakuru.jpg",
-  "page": "https://commons.wikimedia.org/wiki/File:Flamingos_in_Lake_Nakuru.jpg",
-  "license": "CC BY 2.0",
-  "artist": "Xiaojun Deng"
+  "title": "File:Flamingos, Lake Nakuru.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Flamingos%2C_Lake_Nakuru.jpg/1920px-Flamingos%2C_Lake_Nakuru.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Flamingos,_Lake_Nakuru.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Paul Mannix"
  },
  "nakuru_rhino": {
   "title": "File:Rhino Nakuru.jpg",
@@ -161,18 +161,18 @@
   "artist": "Sergei Gussev"
  },
  "dubai_desert": {
-  "title": "File:A car on Dubai Dune bashing.jpg",
-  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/A_car_on_Dubai_Dune_bashing.jpg/1920px-A_car_on_Dubai_Dune_bashing.jpg",
-  "page": "https://commons.wikimedia.org/wiki/File:A_car_on_Dubai_Dune_bashing.jpg",
+  "title": "File:Dubai desert dunes.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Dubai_desert_dunes.jpg/1920px-Dubai_desert_dunes.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Dubai_desert_dunes.jpg",
   "license": "CC BY-SA 4.0",
-  "artist": "iMahesh"
+  "artist": "Gfilip"
  },
  "serengeti": {
-  "title": "File:002 Male Lion prowling in the Serengeti National Park Photo by Giles Laurent.jpg",
-  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/002_Male_Lion_prowling_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg/1920px-002_Male_Lion_prowling_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg",
-  "page": "https://commons.wikimedia.org/wiki/File:002_Male_Lion_prowling_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg",
-  "license": "CC BY-SA 4.0",
-  "artist": "Giles Laurent"
+  "title": "File:Serengeti-Landscape-2012.JPG",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Serengeti-Landscape-2012.JPG/1920px-Serengeti-Landscape-2012.JPG",
+  "page": "https://commons.wikimedia.org/wiki/File:Serengeti-Landscape-2012.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "Bjørn Christian Tørrissen"
  },
  "cape_town": {
   "title": "File:Cape Town (ZA), Table Mountain -- 2024 -- 2794+96+98+2800+01.jpg",
@@ -196,11 +196,11 @@
   "artist": "TTC dude"
  },
  "flamingo": {
-  "title": "File:Nakuru, The Lake of 1,000,000 Flamingos (49629884077).jpg",
-  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Nakuru%2C_The_Lake_of_1%2C000%2C000_Flamingos_%2849629884077%29.jpg/1920px-Nakuru%2C_The_Lake_of_1%2C000%2C000_Flamingos_%2849629884077%29.jpg",
-  "page": "https://commons.wikimedia.org/wiki/File:Nakuru,_The_Lake_of_1,000,000_Flamingos_(49629884077).jpg",
-  "license": "CC BY 2.0",
-  "artist": "Ray in Manila"
+  "title": "File:Flock of flamingos in Kenya.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Flock_of_flamingos_in_Kenya.jpg/1920px-Flock_of_flamingos_in_Kenya.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Flock_of_flamingos_in_Kenya.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "AlexanderMirschel"
  },
  "cheetah": {
   "title": "File:Cheetah (Acinonyx jubatus), Maasai Mara.jpg",
@@ -217,11 +217,11 @@
   "artist": "Panegyrics of Granovetter"
  },
  "diani": {
-  "title": "File:Diani Beach Sunrise Kenya.jpg",
-  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Diani_Beach_Sunrise_Kenya.jpg/1920px-Diani_Beach_Sunrise_Kenya.jpg",
-  "page": "https://commons.wikimedia.org/wiki/File:Diani_Beach_Sunrise_Kenya.jpg",
-  "license": "CC BY-SA 3.0",
-  "artist": "Łukasz Ciesielski"
+  "title": "File:Diani Beach, Kenya - panoramio.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Diani_Beach%2C_Kenya_-_panoramio.jpg/1920px-Diani_Beach%2C_Kenya_-_panoramio.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Diani_Beach,_Kenya_-_panoramio.jpg",
+  "license": "CC BY 3.0",
+  "artist": "Toppazz"
  },
  "diani2": {
   "title": "File:Kenya Diani Beach 23 BG.jpg",

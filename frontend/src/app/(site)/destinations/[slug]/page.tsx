@@ -3,9 +3,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { TourCard } from "@/components/site/tour-card";
+import { VideoReel } from "@/components/site/video-reel";
 import { WhatsAppIcon } from "@/components/site/whatsapp-button";
 import { ButtonLink } from "@/components/ui/button";
 import { Container, EmptyState } from "@/components/ui/misc";
+import { TRIP_CLIPS } from "@/lib/media";
 import { getDestination, getSite, NotFoundError } from "@/lib/server-api";
 import { whatsappLink } from "@/lib/utils";
 
@@ -35,6 +37,7 @@ export async function generateMetadata({ params }: PageProps<"/destinations/[slu
 export default async function DestinationPage({ params }: PageProps<"/destinations/[slug]">) {
   const { slug } = await params;
   const [{ destination: d, tours }, site] = await Promise.all([load(slug), getSite()]);
+  const clips = TRIP_CLIPS.filter((c) => c.destinations.includes(d.slug));
   return (
     <>
       <section className="relative isolate overflow-hidden bg-forest-deep">
@@ -74,6 +77,23 @@ export default async function DestinationPage({ params }: PageProps<"/destinatio
           )}
         </div>
       </Container>
+      {d.gallery.length > 0 && (
+        <Container className="pb-12">
+          <div className="grid auto-rows-[180px] grid-cols-2 gap-3 md:auto-rows-[220px] md:grid-cols-4">
+            {d.gallery.slice(0, 6).map((src, i) => (
+              <div key={src} className={`relative overflow-hidden rounded-3xl bg-surface-3 ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
+                <Image src={src} alt={`${d.name} photo ${i + 1}`} fill sizes={i === 0 ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 25vw, 50vw"} className="object-cover transition duration-500 hover:scale-105" />
+              </div>
+            ))}
+          </div>
+        </Container>
+      )}
+      {clips.length > 0 && (
+        <Container className="pb-12">
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">From our last trip to {d.name}</h2>
+          <VideoReel clips={clips} />
+        </Container>
+      )}
       <Container>
         <h2 className="mb-6 text-2xl font-extrabold text-primary">Trips to {d.name}</h2>
         {tours.length ? (
