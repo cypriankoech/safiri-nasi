@@ -1,14 +1,26 @@
+# Development stack: everything runs in containers with hot reload.
+#   docker compose up --build        → site http://localhost:3000, API http://localhost:8000/api/docs,
+#                                      emails http://localhost:8025
+# Production: see docker-compose.prod.yml.
+name: safirinasi
+
 services:
   db:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: safiri
       POSTGRES_PASSWORD: safiri
       POSTGRES_DB: safiri_nasi
     ports:
-      - "5434:5432"
+      - "5434:5432"   # for local DB tools; the app connects over the compose network
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./docker/db-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U safiri -d safiri_nasi"]
       interval: 5s
@@ -16,6 +28,11 @@ services:
       retries: 10
 
   mailpit:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
     image: axllent/mailpit:v1.33
     environment:
       MP_SMTP_DISABLE_RDNS: "true"  # reverse-DNS lookups stall the SMTP greeting inside Docker
@@ -24,30 +41,57 @@ services:
       - "8025:8025"   # Web UI
 
   backend:
-    build: ./backend
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+    build:
+      context: ./backend
+      target: dev
     env_file: ./backend/.env
     environment:
       DATABASE_URL: postgresql+asyncpg://safiri:safiri@db:5432/safiri_nasi
+      TEST_DATABASE_URL: postgresql+asyncpg://safiri:safiri@db:5432/safiri_nasi_test
       SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      FRONTEND_URL: http://localhost:3000
+      PUBLIC_API_URL: http://localhost:8000
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./backend/uploads:/app/uploads
-    profiles: ["full"]
+      mailpit:
+        condition: service_started
 
   frontend:
-    build: ./frontend
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+    build:
+      context: ./frontend
+      target: dev
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
       API_URL_INTERNAL: http://backend:8000
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      WATCHPACK_POLLING: "false"
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      # Keep the container's own (Alpine) node_modules and build cache.
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
     depends_on:
       - backend
-    profiles: ["full"]
 
 volumes:
   pgdata:
+  frontend_node_modules:
+  frontend_next:

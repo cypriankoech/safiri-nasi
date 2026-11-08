@@ -136,7 +136,7 @@ async def update_settings(values: dict[str, Any], db: DB, admin: AdminUser, requ
     unknown = set(values) - set(site_settings.DEFAULTS)
     if unknown:
         raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY, f"Unknown settings: {', '.join(sorted(unknown))}"
+            status.HTTP_422_UNPROCESSABLE_CONTENT, f"Unknown settings: {', '.join(sorted(unknown))}"
         )
     if "usd_to_kes" in values:
         try:
@@ -144,7 +144,7 @@ async def update_settings(values: dict[str, Any], db: DB, admin: AdminUser, requ
         except (TypeError, ValueError):
             rate = 0
         if not 50 <= rate <= 500:
-            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "USD→KES rate looks wrong.")
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "USD→KES rate looks wrong.")
         values["usd_to_kes"] = rate
     await site_settings.set_values(db, values)
     log_action(
@@ -256,4 +256,5 @@ async def upload_image(file: UploadFile, user: StaffUser, db: DB):
     (target_dir / name).write_bytes(data)
     log_action(db, user, "upload.create", "upload", None, f"{folder}/{name}")
     await db.commit()
-    return {"url": f"{settings.public_api_url}/uploads/{folder}/{name}"}
+    # Relative, so the website serves it through its /uploads rewrite (works in and out of Docker).
+    return {"url": f"/uploads/{folder}/{name}"}

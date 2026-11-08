@@ -28,3 +28,7 @@ next-env.d.ts
 
 # Raw photos/videos dropped in for review (processed copies go to frontend/public/media)
 media-inbox/
+
+# Playwright output
+frontend/test-results/
+frontend/playwright-report/

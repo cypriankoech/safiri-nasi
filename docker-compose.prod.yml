@@ -1,0 +1,88 @@
+# Production stack.
+#   cp backend/.env.example backend/.env.production   # then set real secrets and provider keys
+#   SITE_URL=https://safirinasi.co.ke docker compose -f docker-compose.prod.yml up -d --build
+# Put a TLS-terminating reverse proxy (Caddy, Nginx, Traefik) in front of port 3000 and
+# route https://api.<domain> (or /api/callbacks) to port 8000 for payment callbacks.
+name: safirinasi-prod
+
+services:
+  db:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-safiri}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-safiri_nasi}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+    build:
+      context: ./backend
+      target: prod
+    restart: unless-stopped
+    env_file: ./backend/.env.production
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-safiri}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-safiri_nasi}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+    build:
+      context: ./frontend
+      target: runner
+      args:
+        API_URL_INTERNAL: http://backend:8000
+        NEXT_PUBLIC_API_URL: ${API_PUBLIC_URL:-http://localhost:8000}
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost:3000}
+    restart: unless-stopped
+    environment:
+      API_URL_INTERNAL: http://backend:8000
+    # Also warms the page cache right after a deploy (the build itself runs without the API).
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 20s
+      retries: 3
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  uploads:

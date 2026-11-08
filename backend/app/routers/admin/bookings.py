@@ -201,7 +201,7 @@ async def create_manual_booking(data: AdminBookingCreate, db: DB, user: StaffUse
         )
     except QuoteError as exc:
         await db.rollback()
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
     booking.internal_notes = data.internal_notes
     booking.hold_expires_at = (
         datetime.now(UTC) + timedelta(hours=data.hold_hours) if data.hold_hours else None

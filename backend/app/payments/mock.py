@@ -44,7 +44,7 @@ class MockCard:
         return InitResult(
             provider_reference=token,
             message="Redirecting to the secure card page…",
-            redirect_url=f"{settings.public_api_url}/api/payments/mock/{payment.reference}",
+            redirect_url=f"{settings.frontend_url}/api/payments/mock/{payment.reference}",
         )
 
     async def query_status(self, payment: Payment) -> StatusResult:

@@ -5,6 +5,7 @@ const API_URL = process.env.API_URL_INTERNAL ?? process.env.NEXT_PUBLIC_API_URL 
 const apiHost = new URL(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000");
 
 const nextConfig: NextConfig = {
+  output: "standalone", // minimal production server for the Docker image
   cacheComponents: true,
   partialPrefetching: true,
   images: {

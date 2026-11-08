@@ -196,7 +196,7 @@ async def _apply(db: DB, tour: Tour, data: TourIn) -> None:
         key = (p.rate_category, p.currency)
         if key in seen:
             raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY, f"Duplicate price for {key[0]} {key[1]}"
+                status.HTTP_422_UNPROCESSABLE_CONTENT, f"Duplicate price for {key[0]} {key[1]}"
             )
         seen.add(key)
         row = existing_prices.get(key)
@@ -430,7 +430,7 @@ async def create_departure(data: DepartureIn, db: DB, user: StaffUser):
 async def bulk_departures(data: DepartureBulkIn, db: DB, user: StaffUser):
     tour = await _tour_or_404(db, data.tour_id)
     if data.last_date < data.first_date or (data.last_date - data.first_date).days > 730:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Choose a date range of up to two years.")
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Choose a date range of up to two years.")
     existing = set((await db.scalars(select(Departure.start_date).where(Departure.tour_id == tour.id))).all())
     created, day = 0, data.first_date
     while day <= data.last_date:
@@ -459,7 +459,7 @@ async def update_departure(departure_id: int, data: DepartureUpdate, db: DB, use
     changes = data.model_dump(exclude_unset=True)
     if "capacity" in changes and changes["capacity"] < departure.seats_booked:
         raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY, f"{departure.seats_booked} seats are already booked."
+            status.HTTP_422_UNPROCESSABLE_CONTENT, f"{departure.seats_booked} seats are already booked."
         )
     for k, v in changes.items():
         setattr(departure, k, v)

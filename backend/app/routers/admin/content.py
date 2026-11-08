@@ -306,9 +306,9 @@ class PromoOut(ORM):
 
 def _validate_promo(data: PromoIn) -> None:
     if data.discount_type == DiscountType.percent and data.value > 100:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "A percentage discount can't exceed 100.")
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "A percentage discount can't exceed 100.")
     if data.discount_type == DiscountType.fixed and not data.currency:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Choose a currency for a fixed discount.")
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Choose a currency for a fixed discount.")
 
 
 @router.get("/promos", response_model=list[PromoOut])

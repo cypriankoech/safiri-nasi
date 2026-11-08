@@ -52,7 +52,7 @@ async def create(data: BookingCreate, db: DB, user: OptionalUser):
         digits = "".join(ch for ch in data.contact.phone if ch.isdigit())
         if len(digits) < 7:
             raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY, "Please enter a valid phone number."
+                status.HTTP_422_UNPROCESSABLE_CONTENT, "Please enter a valid phone number."
             ) from None
 
     departure = await db.get(Departure, data.departure_id) if data.departure_id else None
@@ -84,7 +84,7 @@ async def create(data: BookingCreate, db: DB, user: OptionalUser):
         )
     except QuoteError as exc:
         await db.rollback()
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
     await db.commit()
     booking = await get_booking(db, booking.reference)
     notifications.booking_created(booking, await site_settings.get_all(db))
@@ -129,7 +129,7 @@ async def pay(
     try:
         return await start_payment(db, booking, method=data.method, phone=data.phone, pay_full=data.pay_full)
     except PaymentError as exc:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
 
 
 async def _authorized_payment(db: DB, reference: str, user, token: str | None) -> tuple[Payment, Booking]:
