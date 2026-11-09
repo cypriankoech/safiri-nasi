@@ -159,36 +159,54 @@ async def payment_config(_: StaffUser):
     """Which providers are configured, and the callback URLs to register with each."""
     base = settings.public_api_url
     secret = settings.callback_secret
+    split = {
+        "partner": settings.platform_partner_name,
+        "percent": float(settings.paystack_platform_percent),
+        "subaccount": settings.paystack_platform_subaccount or "not set",
+        "paystack_fee_paid_by": "Safiri Nasi (main account)",
+        "active": bool(settings.paystack_platform_subaccount) and settings.paystack_platform_percent > 0,
+    }
+    direct = {
+        "mpesa": {
+            "configured": bool(settings.mpesa_consumer_key and settings.mpesa_consumer_secret),
+            "shortcode": settings.mpesa_shortcode,
+            "transaction_type": settings.mpesa_transaction_type,
+            "stk_callback_url": f"{base}/api/callbacks/mpesa/stk/{secret[:4]}…",
+            "c2b_confirmation_url": f"{base}/api/callbacks/mpesa/c2b/confirmation/{secret[:4]}…",
+        },
+        "airtel": {
+            "configured": bool(settings.airtel_client_id and settings.airtel_client_secret),
+            "callback_url": f"{base}/api/callbacks/airtel/{secret[:4]}…",
+            "callback_signing": bool(settings.airtel_callback_secret),
+        },
+        "card": {
+            "provider": "DPO Pay",
+            "configured": bool(settings.dpo_company_token and settings.dpo_service_type),
+            "push_url": f"{base}/api/callbacks/dpo/{secret[:4]}…",
+        },
+    }
+    paystack = {
+        "paystack": {
+            "configured": bool(settings.paystack_secret_key),
+            "key_type": "live" if settings.paystack_secret_key.startswith("sk_live") else "test",
+            "channels": "M-Pesa, Airtel Money, card",
+            "webhook_url": f"{base}/api/callbacks/paystack",
+        }
+    }
     return {
         "mode": settings.payments_mode,
+        "gateway": settings.payment_gateway,
         "public_api_url": base,
-        "providers": {
-            "mpesa": {
-                "configured": bool(settings.mpesa_consumer_key and settings.mpesa_consumer_secret),
-                "shortcode": settings.mpesa_shortcode,
-                "transaction_type": settings.mpesa_transaction_type,
-                "stk_callback_url": f"{base}/api/callbacks/mpesa/stk/{secret[:4]}…",
-                "c2b_confirmation_url": f"{base}/api/callbacks/mpesa/c2b/confirmation/{secret[:4]}…",
-            },
-            "airtel": {
-                "configured": bool(settings.airtel_client_id and settings.airtel_client_secret),
-                "callback_url": f"{base}/api/callbacks/airtel/{secret[:4]}…",
-                "callback_signing": bool(settings.airtel_callback_secret),
-            },
-            "card": {
-                "provider": "DPO Pay",
-                "configured": bool(settings.dpo_company_token and settings.dpo_service_type),
-                "push_url": f"{base}/api/callbacks/dpo/{secret[:4]}…",
-            },
-        },
+        "split": split if settings.payment_gateway == "paystack" else None,
+        "providers": paystack if settings.payment_gateway == "paystack" else direct,
     }
 
 
 @router.post("/payment-config/register-c2b", response_model=Message)
 async def register_c2b(admin: AdminUser, db: DB):
     """Tell Safaricom where to send Paybill/Till payments made outside our checkout."""
-    if settings.payments_mode == "mock":
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Switch PAYMENTS_MODE to sandbox or live first.")
+    if settings.payments_mode == "mock" or settings.payment_gateway != "direct":
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Only available with the direct M-Pesa integration.")
     base = f"{settings.public_api_url}/api/callbacks/mpesa/c2b"
     try:
         data = await DarajaClient().register_c2b_urls(

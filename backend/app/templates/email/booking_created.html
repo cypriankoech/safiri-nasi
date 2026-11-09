@@ -4,5 +4,5 @@
 <p>Thanks for booking <strong>{{ b.tour_title }}</strong> with us. We're holding your place for {{ hold_minutes }} minutes. Pay {% if b.payment_plan == 'deposit' %}the deposit of <strong>{{ b.deposit }}</strong>{% else %}<strong>{{ b.total }}</strong>{% endif %} to confirm it.</p>
 {{ summary(b) }}
 {{ button(b.manage_url, "Complete payment") }}
-<p style="font-size:13px;color:#5E6455;">You can pay by M-Pesa, Airtel Money or card. To use the Paybill, send the money to <strong>{{ site.mpesa_paybill }}</strong> with account number <strong>{{ b.reference }}</strong>.</p>
+<p style="font-size:13px;color:#5E6455;">You can pay by M-Pesa, Airtel Money or card, secured by Paystack.{% if site.payment_methods.paybill and site.mpesa_paybill %} To use the Paybill, send the money to <strong>{{ site.mpesa_paybill }}</strong> with account number <strong>{{ b.reference }}</strong>.{% endif %}</p>
 {% endblock %}

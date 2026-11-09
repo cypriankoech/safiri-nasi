@@ -1,4 +1,4 @@
-import { CreditCard } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Text marks rather than trademarked logo artwork. */
@@ -21,8 +21,8 @@ export function PaymentLogos({ className, light = false }: { className?: string;
         </span>
         mastercard
       </span>
-      <span className={cn(chip, "text-[#1e3b1c]")}>
-        <CreditCard className="h-3.5 w-3.5" /> Paybill
+      <span className={cn(chip, "text-[#0ba4db]")}>
+        <ShieldCheck className="h-3.5 w-3.5" /> Paystack
       </span>
     </div>
   );

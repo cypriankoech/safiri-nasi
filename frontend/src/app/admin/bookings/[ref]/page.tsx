@@ -133,6 +133,13 @@ export default function AdminBookingPage() {
                     <td className="text-right font-semibold">
                       {money(p.amount, p.currency)}
                       {p.currency !== b.currency && <span className="block text-xs font-normal text-muted">= {money(p.booking_amount, b.currency)}</span>}
+                      {(p.gateway_fee != null || !!p.platform_share) && (
+                        <span className="block text-xs font-normal text-muted">
+                          {p.gateway_fee != null && `fee ${money(p.gateway_fee, p.currency)}`}
+                          {p.gateway_fee != null && !!p.platform_share && " · "}
+                          {!!p.platform_share && `partner ${money(p.platform_share, p.currency)}`}
+                        </span>
+                      )}
                     </td>
                     <td><PaymentStatusBadge status={p.status} /></td>
                     <td className="text-right whitespace-nowrap">

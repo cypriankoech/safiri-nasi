@@ -22,11 +22,14 @@ const PAGE_SIZE = 50;
 export default function PaymentsPage() {
   const sp = useSearchParams();
   const [tab, setTab] = useState<"ledger" | "unmatched" | "setup">((sp.get("tab") as "unmatched") ?? "ledger");
+  const config = useQuery({ queryKey: ["admin", "payment-config"], queryFn: () => api<ProviderConfig>("/api/admin/payment-config") });
+  // Unmatched Paybill money only exists with the direct M-Pesa integration.
+  const tabs = (["ledger", "unmatched", "setup"] as const).filter((t) => t !== "unmatched" || config.data?.gateway === "direct");
   return (
     <>
       <PageHeader
         title="Payments"
-        description="Every M-Pesa, Airtel Money, card, Paybill, bank and cash payment."
+        description="Every M-Pesa, Airtel Money and card payment, with Paystack fees and partner shares."
         actions={
           <ButtonLink href="/api/admin/payments/export.csv" target="_blank" variant="outline" size="sm">
             <Download className="h-4 w-4" /> Export CSV
@@ -34,7 +37,7 @@ export default function PaymentsPage() {
         }
       />
       <div className="mb-5 flex gap-1 rounded-full bg-surface-2 p-1 text-sm font-semibold sm:w-fit" role="tablist">
-        {(["ledger", "unmatched", "setup"] as const).map((t) => (
+        {tabs.map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={cn("flex-1 rounded-full px-4 py-1.5 capitalize", tab === t ? "bg-surface shadow-sm" : "text-muted")}>
             {t === "unmatched" ? "Unmatched Paybill" : t === "setup" ? "Provider setup" : "Ledger"}
           </button>
@@ -75,7 +78,7 @@ function Ledger() {
       {isLoading ? <TableSkeleton /> : (
         <>
           <Table>
-            <thead><tr><th>Date</th><th>Booking</th><th>Method</th><th>Receipt</th><th className="text-right!">Amount</th><th>Status</th></tr></thead>
+            <thead><tr><th>Date</th><th>Booking</th><th>Method</th><th>Receipt</th><th className="text-right!">Amount</th><th className="text-right!">Paystack fee</th><th className="text-right!">Partner share</th><th>Status</th></tr></thead>
             <tbody>
               {data?.items.length ? data.items.map((p) => (
                 <tr key={p.reference}>
@@ -84,9 +87,11 @@ function Ledger() {
                   <td>{METHOD_LABELS[p.method]}<span className="block text-xs text-muted">{p.provider}{p.phone ? ` · ${p.phone}` : ""}</span></td>
                   <td className="font-mono text-xs">{p.receipt_number ?? "—"}{p.failure_reason && <span className="block font-sans text-danger">{p.failure_reason}</span>}</td>
                   <td className="text-right font-semibold">{money(p.amount, p.currency)}</td>
+                  <td className="text-right text-muted">{p.gateway_fee != null ? money(p.gateway_fee, p.currency) : "—"}</td>
+                  <td className="text-right text-muted">{p.platform_share ? money(p.platform_share, p.currency) : "—"}</td>
                   <td><PaymentStatusBadge status={p.status} /></td>
                 </tr>
-              )) : <EmptyRow cols={6}>No payments found.</EmptyRow>}
+              )) : <EmptyRow cols={8}>No payments found.</EmptyRow>}
             </tbody>
           </Table>
           <Pager page={page} pageSize={PAGE_SIZE} total={data?.total ?? 0} onPage={setPage} />
@@ -145,7 +150,9 @@ function Unmatched() {
 
 type ProviderConfig = {
   mode: string;
+  gateway: "paystack" | "direct";
   public_api_url: string;
+  split: { partner: string; percent: number; subaccount: string; paystack_fee_paid_by: string; active: boolean } | null;
   providers: Record<string, Record<string, string | boolean>>;
 };
 
@@ -157,13 +164,30 @@ function ProviderSetup() {
     onError: (e) => toast.error(e.message),
   });
   if (!data) return <TableSkeleton rows={3} />;
-  const labels: Record<string, string> = { mpesa: "M-Pesa (Safaricom Daraja)", airtel: "Airtel Money (Open API)", card: "Cards (DPO Pay)" };
+  const labels: Record<string, string> = {
+    paystack: "Paystack (M-Pesa, Airtel Money, cards)",
+    mpesa: "M-Pesa (Safaricom Daraja)",
+    airtel: "Airtel Money (Open API)",
+    card: "Cards (DPO Pay)",
+  };
   return (
     <div className="space-y-4">
       <div className={cn("rounded-2xl p-4 text-sm font-semibold", data.mode === "live" ? "bg-success-bg text-success" : "bg-warning-bg text-warning")}>
         Payments mode: <b className="uppercase">{data.mode}</b>
         {data.mode === "mock" && " · payments are simulated locally. Set PAYMENTS_MODE=sandbox or live in the API's .env when credentials are ready."}
       </div>
+      {data.split && (
+        <Panel title="Revenue split" actions={<Badge tone={data.split.active ? "green" : "sun"}>{data.split.active ? "Active" : "Waiting for subaccount"}</Badge>}>
+          <p className="text-sm">
+            <b>{data.split.percent}%</b> of every online payment settles directly to <b>{data.split.partner}</b>&apos;s Paystack
+            subaccount; the rest settles to Safiri Nasi. Paystack&apos;s fee is paid by {data.split.paystack_fee_paid_by}.
+          </p>
+          <p className="mt-2 text-xs text-muted">
+            Subaccount: <span className="font-mono">{data.split.subaccount}</span> · set on the server (PAYSTACK_PLATFORM_SUBACCOUNT /
+            PAYSTACK_PLATFORM_PERCENT), not editable here.
+          </p>
+        </Panel>
+      )}
       <div className="grid gap-4 lg:grid-cols-3">
         {Object.entries(data.providers).map(([key, cfg]) => (
           <Panel key={key} title={labels[key] ?? key} actions={<Badge tone={cfg.configured ? "green" : "red"}>{cfg.configured ? "Configured" : "Not configured"}</Badge>}>
@@ -172,7 +196,7 @@ function ProviderSetup() {
                 <div key={k}><dt className="text-muted">{k.replace(/_/g, " ")}</dt><dd className="font-mono break-all">{String(v)}</dd></div>
               ))}
             </dl>
-            {key === "mpesa" && (
+            {key === "mpesa" && data.gateway === "direct" && (
               <Button variant="outline" size="sm" className="mt-4" loading={register.isPending} onClick={() => register.mutate()}>
                 <RadioTower className="h-4 w-4" /> Register Paybill URLs
               </Button>

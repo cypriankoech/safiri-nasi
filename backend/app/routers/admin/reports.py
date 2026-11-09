@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
+from app.config import settings
 from app.deps import DB, StaffUser
 from app.models import Booking, Departure, Enquiry, Payment, Review, UnmatchedPayment
 from app.models.enums import BookingStatus, Currency, EnquiryStatus, PaymentStatus, ReviewStatus
@@ -212,8 +213,11 @@ async def revenue_report(
     by_method: dict[str, dict] = defaultdict(lambda: {"count": 0, "kes": 0.0})
     by_tour: dict[str, dict] = defaultdict(lambda: {"count": 0, "kes": 0.0})
     by_currency: dict[str, float] = defaultdict(float)
+    fees_kes = partner_kes = 0.0
     for p in payments:
         kes = _kes(p.amount, p.currency, fx)
+        fees_kes += _kes(p.gateway_fee or Decimal(0), p.currency, fx)
+        partner_kes += _kes(p.platform_share or Decimal(0), p.currency, fx)
         series[bucket(p.paid_at.date())] += kes
         by_method[p.method]["count"] += 1
         by_method[p.method]["kes"] += kes
@@ -225,6 +229,10 @@ async def revenue_report(
         "date_to": date_to,
         "fx_usd_kes": float(fx),
         "total_kes": round(sum(series.values()), 2),
+        "gateway_fees_kes": round(fees_kes, 2),
+        "partner_share_kes": round(partner_kes, 2),
+        "partner_name": settings.platform_partner_name,
+        "net_kes": round(sum(series.values()) - fees_kes - partner_kes, 2),
         "payments": len(payments),
         "series": [{"period": k, "kes": round(v, 2)} for k, v in sorted(series.items())],
         "by_method": [{"method": k, **v} for k, v in sorted(by_method.items(), key=lambda x: -x[1]["kes"])],

@@ -64,7 +64,8 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
             <Field label="M-Pesa Paybill (shown to customers)"><Input value={s.mpesa_paybill} onChange={(e) => set("mpesa_paybill", e.target.value)} /></Field>
             <Field label="M-Pesa Till (optional)"><Input value={s.mpesa_till} onChange={(e) => set("mpesa_till", e.target.value)} /></Field>
           </div>
-          <p className="mt-5 mb-2 text-sm font-semibold">Payment methods offered at checkout</p>
+          <p className="mt-5 mb-1 text-sm font-semibold">Payment methods offered at checkout</p>
+          <p className="mb-2 text-xs text-muted">Paybill and bank transfers bypass Paystack, so they aren&apos;t covered by the automatic revenue split.</p>
           <div className="flex flex-wrap gap-4">
             {(["mpesa", "airtel", "card", "paybill", "bank"] as const).map((m) => (
               <Checkbox key={m} label={{ mpesa: "M-Pesa", airtel: "Airtel Money", card: "Card", paybill: "Paybill", bank: "Bank transfer" }[m]} checked={s.payment_methods?.[m] !== false} onChange={(e) => set("payment_methods", { ...s.payment_methods, [m]: e.target.checked })} />

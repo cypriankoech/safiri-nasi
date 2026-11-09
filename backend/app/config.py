@@ -1,3 +1,4 @@
+from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -50,7 +51,20 @@ class Settings(BaseSettings):
     # Payments: "mock" simulates every provider locally, "sandbox" uses provider
     # test environments, "live" uses production endpoints.
     payments_mode: Literal["mock", "sandbox", "live"] = "mock"
+    # "paystack": M-Pesa, Airtel Money and cards through Paystack, with revenue splits.
+    # "direct": Safaricom Daraja + Airtel Open API + DPO Pay (kept for later use).
+    payment_gateway: Literal["paystack", "direct"] = "paystack"
     callback_secret: str = "dev-callback-secret"
+
+    # Paystack (https://dashboard.paystack.com). Test keys (sk_test_…) in sandbox, live keys in live.
+    paystack_secret_key: str = ""
+    # Revenue split: the platform partner's Paystack subaccount (ACCT_…) and its percentage of
+    # every online payment. Paystack's own fee is charged to the main (Safiri Nasi) account.
+    # Set on the server, not in the admin panel, so the share can't be changed from the site.
+    platform_partner_name: str = "Astralyn"
+    paystack_platform_subaccount: str = ""
+    paystack_platform_percent: Decimal = Decimal(5)
+    paystack_airtel_provider: str = "airtel"  # mobile_money.provider code for Airtel Money (Kenya)
 
     mpesa_consumer_key: str = ""
     mpesa_consumer_secret: str = ""

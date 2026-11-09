@@ -7,8 +7,8 @@ A free, shareable preview of the site while the real domain and payment accounts
 | Website (Next.js) | Vercel | `https://safirinasitourstravel.vercel.app` | `https://safirinasitourstravel.co.ke` |
 | API (FastAPI) + PostgreSQL | Render | `https://safirinasitourstravel-api.onrender.com` | `https://api.safirinasitourstravel.co.ke` |
 
-Payments run in **mock mode** (simulated M-Pesa, Airtel Money and card) and emails are off, so
-nothing real is charged or sent. The website talks to the API through its own `/api` path, so
+Payments run in **mock mode** (simulated M-Pesa, Airtel Money and card, with Astralyn's 5% share
+recorded on each payment) and emails are off, so nothing real is charged or sent. The website talks to the API through its own `/api` path, so
 logins work as normal first-party cookies.
 
 > If Vercel or Render says a name is taken, use the address it gives you instead, and use that
@@ -91,5 +91,6 @@ to take effect.
 3. Render → service → **Custom Domains** → add `api.safirinasitourstravel.co.ke`, then create its CNAME.
 4. Update the environment variables (`FRONTEND_URL`, `PUBLIC_API_URL`, `CORS_ORIGINS` on Render;
    the three on Vercel) to the new addresses, then redeploy both.
-5. Before going live: set `PAYMENTS_MODE=live` plus provider keys, configure SMTP and set
-   `SEND_EMAILS=true` (see the README's go-live checklist).
+5. Before going live: add Safiri Nasi's Paystack secret key and Astralyn's subaccount code
+   (`PAYSTACK_SECRET_KEY`, `PAYSTACK_PLATFORM_SUBACCOUNT`), set `PAYMENTS_MODE=live`, configure
+   SMTP and set `SEND_EMAILS=true` (see the README's Paystack go-live checklist).

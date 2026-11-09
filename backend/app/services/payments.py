@@ -12,11 +12,13 @@ from app.models import Booking, Payment, ProviderCallback, UnmatchedPayment, Use
 from app.models.enums import BookingStatus, Currency, PaymentMethod, PaymentStatus
 from app.payments import airtel as airtel_mod
 from app.payments import mpesa as mpesa_mod
+from app.payments import paystack as paystack_mod
 from app.payments.airtel import AirtelProvider
 from app.payments.base import PaymentProvider, ProviderError, StatusResult
 from app.payments.dpo import DpoProvider
 from app.payments.mock import MockCard, MockMobileMoney
 from app.payments.mpesa import MpesaProvider
+from app.payments.paystack import PaystackProvider
 from app.payments.phone import InvalidPhone, detect_network, normalize_ke_phone
 from app.services import notifications, site_settings
 from app.services.booking import (
@@ -44,6 +46,8 @@ class PaymentError(ValueError):
 def provider_for(method: str) -> PaymentProvider:
     if settings.payments_mode == "mock":
         return MockCard() if method == PaymentMethod.card else MockMobileMoney(method)
+    if settings.payment_gateway == "paystack":
+        return PaystackProvider(method)
     if method == PaymentMethod.mpesa:
         return MpesaProvider()
     if method == PaymentMethod.airtel:
@@ -56,6 +60,8 @@ def provider_for(method: str) -> PaymentProvider:
 def provider_name(method: str) -> str:
     if settings.payments_mode == "mock":
         return "mock"
+    if settings.payment_gateway == "paystack":
+        return "paystack"
     return {"mpesa": "daraja", "airtel": "airtel", "card": "dpo"}[method]
 
 
@@ -140,6 +146,10 @@ async def start_payment(
         fx_rate=fx_rate,
         status=PaymentStatus.pending,
         phone=normalized_phone,
+        # The partner's cut of this payment, settled by Paystack straight to its subaccount.
+        platform_share=paystack_mod.platform_share(charge_amount)
+        if settings.payment_gateway == "paystack"
+        else None,
         raw={},
     )
     db.add(payment)
@@ -196,6 +206,8 @@ async def apply_result(db: AsyncSession, payment: Payment, result: StatusResult)
             log.warning("Receipt %s already recorded on payment %s", receipt, clash)
             return None
     payment.receipt_number = receipt
+    if result.gateway_fee is not None:
+        payment.gateway_fee = result.gateway_fee
     payment.status = PaymentStatus.success
     payment.failure_reason = None
     payment.paid_at = datetime.now(UTC)
@@ -411,3 +423,31 @@ async def record_payment(
     site = await site_settings.get_all(db)
     notifications.payment_received(booking, payment, milestone, site)
     return payment
+
+
+async def handle_paystack_webhook(
+    db: AsyncSession, raw_body: bytes, signature: str | None, ip: str | None
+) -> None:
+    """charge.success / charge.failed from Paystack. Signed, and still re-verified before crediting."""
+    import json
+
+    try:
+        body = json.loads(raw_body)
+    except ValueError:
+        body = {"raw": raw_body[:2000].decode(errors="replace")}
+    entry = log_callback(db, "paystack", str(body.get("event") or "unknown"), body, ip)
+    if not paystack_mod.signature_valid(raw_body, signature):
+        entry.error = "Invalid signature"
+        await db.commit()
+        return
+    reference = (body.get("data") or {}).get("reference")
+    payment = await db.scalar(select(Payment).where(Payment.reference == reference)) if reference else None
+    if payment is None:
+        entry.error = "Unknown reference"
+        await db.commit()
+        return
+    entry.payment_id = payment.id
+    entry.processed = True
+    await db.commit()
+    if body.get("event") in ("charge.success", "charge.failed"):
+        await refresh_payment(db, payment, force=True)

@@ -78,6 +78,8 @@ export interface AdminPayment extends Payment {
   provider_reference: string | null;
   recorded_by_name: string | null;
   fx_rate: number;
+  gateway_fee: number | null;
+  platform_share: number | null;
 }
 
 export interface AdminBooking extends Omit<Booking, "payments"> {

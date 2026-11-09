@@ -21,7 +21,15 @@ services:
       - key: CALLBACK_SECRET
         generateValue: true
       - key: PAYMENTS_MODE
-        value: mock         # simulated payments until provider accounts are ready
+        value: mock         # simulated payments; switch to sandbox/live with Paystack keys
+      - key: PAYMENT_GATEWAY
+        value: paystack
+      - key: PAYSTACK_SECRET_KEY
+        sync: false         # leave empty while in mock mode
+      - key: PAYSTACK_PLATFORM_SUBACCOUNT
+        sync: false         # Astralyn's ACCT_… code; leave empty until created
+      - key: PAYSTACK_PLATFORM_PERCENT
+        value: "5"
       - key: COOKIE_SECURE
         value: "true"
       - key: SEND_EMAILS

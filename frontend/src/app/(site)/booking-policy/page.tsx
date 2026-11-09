@@ -20,12 +20,11 @@ export default function BookingPolicyPage() {
       </p>
       <h2>Ways to pay</h2>
       <ul>
-        <li>M-Pesa (STK push from our website, or our Paybill using your booking reference as the account number)</li>
+        <li>M-Pesa (a payment prompt is sent to your phone)</li>
         <li>Airtel Money</li>
-        <li>Visa and Mastercard, processed securely by DPO Pay</li>
-        <li>Bank transfer (confirmed within one working day)</li>
-      </ul>
-      <p>Mobile money is charged in Kenya shillings. USD bookings are converted at the rate shown at checkout.</p>
+        <li>Visa and Mastercard</li>
+              </ul>
+      <p>All online payments are processed securely by Paystack. Mobile money is charged in Kenya shillings. USD bookings are converted at the rate shown at checkout.</p>
       <h2>Cancellations by you</h2>
       <ul>
         <li>More than 60 days before travel: full refund less a KES 2,500 administration fee.</li>

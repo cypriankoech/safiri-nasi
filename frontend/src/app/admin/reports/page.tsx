@@ -15,6 +15,10 @@ import type { BookingStatus, PaymentMethod } from "@/lib/types";
 
 type Revenue = {
   total_kes: number;
+  gateway_fees_kes: number;
+  partner_share_kes: number;
+  partner_name: string;
+  net_kes: number;
   payments: number;
   fx_usd_kes: number;
   series: { period: string; kes: number }[];
@@ -82,6 +86,11 @@ export default function ReportsPage() {
             <Stat label="Bookings created" value={b.total} hint={`${b.travellers} travellers`} />
             <Stat label="Conversion to paid" value={b.conversion_rate === null ? "—" : `${Math.round(b.conversion_rate * 100)}%`} hint="Bookings that paid at least the deposit" />
             <Stat label="Avg. booking lead time" value={b.avg_lead_days === null ? "—" : `${b.avg_lead_days} days`} hint="Booking to travel date" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Stat label="Paystack fees" value={money(r.gateway_fees_kes, "KES")} hint="Charged to Safiri Nasi" />
+            <Stat label={`${r.partner_name} share`} value={money(r.partner_share_kes, "KES")} hint="Settled to its Paystack subaccount" />
+            <Stat label="Net to Safiri Nasi" value={money(r.net_kes, "KES")} hint="Revenue − fees − partner share" tone="good" />
           </div>
           <Panel title="Revenue over time">
             <div className="h-72">

@@ -22,7 +22,7 @@
 {% for p in payments %}<tr><td>{{ p.date }}</td><td>{{ p.method }}</td><td>{{ p.receipt }}</td><td class="num">{{ p.amount }}</td></tr>{% endfor %}
 </table>{% endif %}
 {% if b.balance > 0 %}<h2>How to pay</h2>
-<p>Pay online at <strong>{{ manage_url_short }}</strong> by M-Pesa, Airtel Money or card, or send money to M-Pesa Paybill <strong>{{ site.mpesa_paybill }}</strong> with account number <strong>{{ b.reference }}</strong>.
-{% if site.bank_details.account_number %}<br>Bank: {{ site.bank_details.bank_name }}, A/C {{ site.bank_details.account_number }} ({{ site.bank_details.account_name }}){% if site.bank_details.swift_code %}, SWIFT {{ site.bank_details.swift_code }}{% endif %}. Use {{ b.reference }} as the reference.{% endif %}</p>{% endif %}
+<p>Pay online at <strong>{{ manage_url_short }}</strong> by M-Pesa, Airtel Money or card (secured by Paystack).{% if site.payment_methods.paybill and site.mpesa_paybill %} Or send money to M-Pesa Paybill <strong>{{ site.mpesa_paybill }}</strong> with account number <strong>{{ b.reference }}</strong>.{% endif %}
+{% if site.payment_methods.bank and site.bank_details.account_number %}<br>Bank: {{ site.bank_details.bank_name }}, A/C {{ site.bank_details.account_number }} ({{ site.bank_details.account_name }}){% if site.bank_details.swift_code %}, SWIFT {{ site.bank_details.swift_code }}{% endif %}. Use {{ b.reference }} as the reference.{% endif %}</p>{% endif %}
 <p class="note">{{ b.tour.cancellation_policy or "Cancellation terms are set out in our booking policy at safirinasitourstravel.co.ke/booking-policy." }}</p>
 {% endblock %}

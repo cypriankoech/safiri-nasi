@@ -1281,8 +1281,8 @@ FAQS = [
     (
         "Booking & payment",
         "How do I pay?",
-        "Pay securely online with M-Pesa, Airtel Money or Visa/Mastercard. You can "
-        "also pay to our M-Pesa Paybill using your booking reference as the account number, or by bank transfer.",
+        "Pay securely online with M-Pesa, Airtel Money or Visa/Mastercard. Payments are processed by Paystack "
+        "and you get an instant receipt by email.",
     ),
     (
         "Booking & payment",
@@ -1384,10 +1384,10 @@ BLOG = [
         "Our checkout sends an M-Pesa prompt straight to your phone. Here's what to expect.",
         "## STK push in three steps\n\n1. Choose **M-Pesa** at checkout and enter your Safaricom number.\n2. A prompt "
         "appears on your phone: check the amount and the Safiri Nasi name.\n3. Enter your M-Pesa PIN. Your booking "
-        "updates automatically within seconds.\n\n## Prefer the Paybill?\n\nSend the amount to our Paybill and use your "
-        "booking reference (e.g. SN-7K2M9Q) as the account number. We'll match it to your booking automatically.\n\n"
-        "## Airtel Money and cards\n\nAirtel Money works the same way. Visa and Mastercard payments go through our "
-        "secure card partner.",
+        "updates automatically within seconds.\n\n## Airtel Money and cards\n\nAirtel Money works the same way. "
+        "Visa and Mastercard payments open Paystack's secure checkout and bring you straight back.\n\n"
+        "## Is it safe?\n\nAll payments are processed by Paystack. We never see your PIN or card number, and "
+        "every payment is confirmed with Paystack before your booking updates.",
         ["payments", "tips"],
     ),
 ]
@@ -1699,7 +1699,7 @@ NAMES = [
 async def seed_demo_bookings(db, tours: list[Tour], customer: User, admin: User, rng: random.Random) -> None:
     """Past and upcoming bookings with payments so the admin dashboard has something to show."""
     today = date.today()
-    methods = ["mpesa", "mpesa", "mpesa", "airtel", "card", "paybill", "bank"]
+    methods = ["mpesa", "mpesa", "mpesa", "mpesa", "airtel", "card", "card", "bank"]
     for i in range(34):
         tour = rng.choice(tours)
         name, country = NAMES[i % len(NAMES)]
@@ -1787,6 +1787,7 @@ async def seed_demo_bookings(db, tours: list[Tour], customer: User, admin: User,
             if amount <= 0:
                 continue
             method = rng.choice(methods) if price.currency == "KES" else "card"
+            online = ("mpesa", "airtel", "card")
             when = when + timedelta(days=rng.randint(0, 20))
             if when.date() > today:
                 when = datetime.now(UTC) - timedelta(hours=rng.randint(1, 48))
@@ -1795,18 +1796,20 @@ async def seed_demo_bookings(db, tours: list[Tour], customer: User, admin: User,
                     reference="PY" + new_reference("X")[2:] + str(rng.randint(100, 999)),
                     booking_id=booking.id,
                     method=method,
-                    provider={
-                        "mpesa": "daraja",
-                        "airtel": "airtel",
-                        "card": "dpo",
-                        "paybill": "daraja_c2b",
-                    }.get(method, "manual"),
+                    provider="paystack" if method in online else "manual",
                     amount=amount,
                     currency=price.currency,
                     booking_amount=amount,
                     status=PaymentStatus.success,
                     phone=booking.contact_phone if method in ("mpesa", "airtel") else None,
-                    receipt_number=f"{'TK' if method != 'card' else 'DPO'}{rng.randint(10**7, 10**8)}{i}",
+                    receipt_number=f"{'TK' if method != 'card' else 'PSK'}{rng.randint(10**7, 10**8)}{i}",
+                    # Typical Paystack Kenya pricing: ~1.5% mobile money, ~3% cards
+                    gateway_fee=money(amount * Decimal("0.015" if method != "card" else "0.03"), "USD")
+                    if method in online
+                    else None,
+                    platform_share=money(amount * settings.paystack_platform_percent / 100, "USD")
+                    if method in online
+                    else None,
                     paid_at=when,
                     created_at=when,
                     recorded_by_id=admin.id if method in ("bank", "cash") else None,

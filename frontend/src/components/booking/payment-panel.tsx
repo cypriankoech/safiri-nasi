@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, CreditCard, Landmark, Loader2, Smartphone, XCircle } from "lucide-react";
+import { CheckCircle2, CreditCard, Landmark, Loader2, ShieldCheck, Smartphone, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -152,7 +152,7 @@ export function PaymentPanel({
     { id: "mpesa" as const, label: "M-Pesa", icon: Smartphone, show: enabled.mpesa !== false },
     { id: "airtel" as const, label: "Airtel Money", icon: Smartphone, show: enabled.airtel !== false },
     { id: "card" as const, label: "Card", icon: CreditCard, show: enabled.card !== false },
-    { id: "manual" as const, label: "Paybill / Bank", icon: Landmark, show: true },
+    { id: "manual" as const, label: "Paybill / Bank", icon: Landmark, show: enabled.paybill === true || enabled.bank === true },
   ].filter((m) => m.show);
 
   return (
@@ -195,7 +195,10 @@ export function PaymentPanel({
         ))}
       </div>
 
-      <div className="mt-5">
+      <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+        <ShieldCheck className="h-3.5 w-3.5 text-lime-strong" /> Payments are processed securely by Paystack.
+      </p>
+      <div className="mt-4">
         {method === "mpesa" || method === "airtel" ? (
           <div className="space-y-4">
             <Field
@@ -217,7 +220,7 @@ export function PaymentPanel({
         ) : method === "card" ? (
           <div className="space-y-4">
             <p className="text-sm text-muted">
-              You&apos;ll be taken to our secure card partner (DPO Pay) to pay with Visa or Mastercard, then brought straight
+              You&apos;ll be taken to Paystack&apos;s secure checkout to pay with Visa or Mastercard, then brought straight
               back here.
             </p>
             <Button size="lg" className="w-full" loading={starting} onClick={start}>
@@ -226,7 +229,7 @@ export function PaymentPanel({
           </div>
         ) : (
           <div className="space-y-4 text-sm">
-            {settings.mpesa_paybill && (
+            {enabled.paybill === true && settings.mpesa_paybill && (
               <div className="rounded-2xl bg-surface-2 p-4">
                 <p className="font-bold">M-Pesa Paybill</p>
                 <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
@@ -244,7 +247,7 @@ export function PaymentPanel({
                 <p className="mt-2 text-xs text-muted">Payments with your booking reference are matched automatically.</p>
               </div>
             )}
-            {settings.bank_details?.account_number && (
+            {enabled.bank === true && settings.bank_details?.account_number && (
               <div className="rounded-2xl bg-surface-2 p-4">
                 <p className="font-bold">Bank transfer</p>
                 <p className="mt-1 text-muted">

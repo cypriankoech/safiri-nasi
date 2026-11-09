@@ -88,6 +88,20 @@ async def airtel(secret: str, request: Request, db: DB):
     return JSONResponse({"status": "received"})
 
 
+@router.post("/api/callbacks/paystack")
+async def paystack_webhook(request: Request, db: DB):
+    """Configure this URL in Paystack → Settings → API Keys & Webhooks. Authenticity comes from
+    the x-paystack-signature header (HMAC-SHA512 with the secret key)."""
+    try:
+        await payment_service.handle_paystack_webhook(
+            db, await request.body(), request.headers.get("x-paystack-signature"), client_ip(request)
+        )
+    except Exception:
+        log.exception("Paystack webhook processing failed")
+        await db.rollback()
+    return JSONResponse({"status": "received"})
+
+
 @router.post("/api/callbacks/dpo/{secret}")
 async def dpo_push(secret: str, request: Request, db: DB):
     _check_secret(secret)

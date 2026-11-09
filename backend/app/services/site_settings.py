@@ -29,7 +29,8 @@ DEFAULTS: dict[str, Any] = {
     "licences": ["Tourism Regulatory Authority (TRA) licensed"],
     "stats": {"years": 5, "travellers": 2500, "destinations": 40, "rating": 4.9},
     "announcement": "",
-    "payment_methods": {"mpesa": True, "airtel": True, "card": True, "paybill": True, "bank": True},
+    # Paybill/bank bypass Paystack (and so the revenue split); off unless switched on in Settings.
+    "payment_methods": {"mpesa": True, "airtel": True, "card": True, "paybill": False, "bank": False},
 }
 
 PUBLIC_KEYS = set(DEFAULTS)

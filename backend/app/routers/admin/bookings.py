@@ -48,6 +48,8 @@ class AdminPayment(PaymentOut):
     provider_reference: str | None
     recorded_by_name: str | None = None
     fx_rate: Money
+    gateway_fee: Money | None
+    platform_share: Money | None
 
 
 class AdminBooking(BookingOut):
@@ -468,6 +470,9 @@ async def export_payments(db: DB, _: StaffUser, date_from: date | None = None, d
                 p.booking_amount,
                 p.booking.currency,
                 p.status,
+                p.gateway_fee or "",
+                p.platform_share or "",
+                p.amount - (p.gateway_fee or 0) - (p.platform_share or 0),
             ]
         )
     return StreamingResponse(

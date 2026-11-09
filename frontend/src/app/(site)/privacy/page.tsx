@@ -22,8 +22,7 @@ export default function PrivacyPage() {
       </p>
       <h2>Sharing</h2>
       <p>
-        We share only what is needed with the camps, lodges, transport providers and payment processors (Safaricom,
-        Airtel, DPO Pay) involved in your trip. We never sell your data.
+        We share only what is needed with the camps, lodges, transport providers and payment processor (Paystack) involved in your trip. We never sell your data.
       </p>
       <h2>Your rights</h2>
       <p>You can request access to, correction of or deletion of your data by emailing us.</p>

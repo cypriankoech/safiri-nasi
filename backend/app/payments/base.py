@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Literal, Protocol
 
 from app.models import Booking, Payment
@@ -24,6 +25,7 @@ class StatusResult:
     receipt_number: str | None = None
     failure_reason: str | None = None
     raw: dict = field(default_factory=dict)
+    gateway_fee: Decimal | None = None  # what the gateway kept, in the charged currency
 
 
 class PaymentProvider(Protocol):

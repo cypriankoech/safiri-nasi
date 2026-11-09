@@ -117,6 +117,9 @@ class Payment(TimestampMixin, Base):
     receipt_number: Mapped[str | None] = mapped_column(String(80), unique=True)
     failure_reason: Mapped[str | None] = mapped_column(String(300))
     redirect_url: Mapped[str | None] = mapped_column(String(600))
+    # Record keeping for gateway payments, in the charged currency.
+    gateway_fee: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))  # kept by Paystack
+    platform_share: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))  # settled to the partner
     raw: Mapped[dict] = mapped_column(JSON, default=dict)
     notes: Mapped[str | None] = mapped_column(String(300))
     recorded_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
