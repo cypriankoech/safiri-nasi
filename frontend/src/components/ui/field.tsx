@@ -55,17 +55,23 @@ export function Field({
   className?: string;
   htmlFor?: string;
 }) {
-  // Without an explicit htmlFor, the label wraps the control so they stay associated.
-  const Wrapper = label && !htmlFor ? "label" : "div";
+  // Without an explicit htmlFor, the label wraps the control so they stay associated. Hints and
+  // errors sit outside the label so they don't become part of the field's accessible name.
+  const labelled =
+    label && !htmlFor ? (
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-semibold text-text">{label}</span>
+        {children}
+      </label>
+    ) : (
+      <>
+        {label && <Label htmlFor={htmlFor}>{label}</Label>}
+        {children}
+      </>
+    );
   return (
-    <Wrapper className={cn("block", className)}>
-      {label &&
-        (htmlFor ? (
-          <Label htmlFor={htmlFor}>{label}</Label>
-        ) : (
-          <span className="mb-1.5 block text-sm font-semibold text-text">{label}</span>
-        ))}
-      {children}
+    <div className={cn("block", className)}>
+      {labelled}
       {error ? (
         <p className="mt-1 text-sm text-danger" role="alert">
           {error}
@@ -73,7 +79,7 @@ export function Field({
       ) : hint ? (
         <p className="mt-1 text-xs text-muted">{hint}</p>
       ) : null}
-    </Wrapper>
+    </div>
   );
 }
 

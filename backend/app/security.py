@@ -51,3 +51,8 @@ def create_refresh_token(user_id: int, token_version: int) -> str:
 def create_booking_token(reference: str) -> str:
     """Grants a guest access to one booking (sent in emails, returned after checkout)."""
     return _encode({"ref": reference, "typ": "booking"}, timedelta(days=settings.booking_token_days))
+
+
+def create_reset_token(user_id: int, token_version: int) -> str:
+    """One-hour password reset link; changing the password bumps token_version, so it works once."""
+    return _encode({"sub": str(user_id), "ver": token_version, "typ": "reset"}, timedelta(hours=1))

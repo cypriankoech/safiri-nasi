@@ -162,3 +162,27 @@ async def test_staff_record_manual_payment_and_assign_unmatched(client, db):
     detail = (await client.get(f"/api/admin/bookings/{ref}", headers=staff)).json()
     assert detail["amount_paid"] == 18900
     assert detail["status"] == "confirmed"
+
+
+async def test_password_reset_link_works_once(client, db, monkeypatch):
+    from app.routers import auth as auth_router
+
+    sent = {}
+    monkeypatch.setattr(
+        auth_router.notifications, "password_reset", lambda email, name, url, site: sent.update(url=url)
+    )
+    await make_user(db, "customer", email="reset@example.com")
+
+    unknown = await client.post("/api/auth/forgot-password", json={"email": "nobody@example.com"})
+    known = await client.post("/api/auth/forgot-password", json={"email": "RESET@example.com"})
+    assert unknown.json() == known.json()  # no account enumeration
+    token = sent["url"].split("token=")[1]
+
+    ok = await client.post("/api/auth/reset-password", json={"token": token, "password": "NewPassword#1"})
+    assert ok.status_code == 200 and ok.cookies.get("sn_access")
+    again = await client.post("/api/auth/reset-password", json={"token": token, "password": "Another#123"})
+    assert again.status_code == 400
+    login = await client.post(
+        "/api/auth/login", json={"email": "reset@example.com", "password": "NewPassword#1"}
+    )
+    assert login.status_code == 200

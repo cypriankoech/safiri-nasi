@@ -6,6 +6,7 @@ name: safirinasi
 
 services:
   db:
+    restart: unless-stopped  # come back after a reboot
     deploy:
       resources:
         limits:
@@ -28,6 +29,7 @@ services:
       retries: 10
 
   mailpit:
+    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -41,6 +43,7 @@ services:
       - "8025:8025"   # Web UI
 
   backend:
+    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -68,6 +71,7 @@ services:
         condition: service_started
 
   frontend:
+    restart: unless-stopped
     deploy:
       resources:
         limits:

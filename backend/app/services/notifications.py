@@ -86,8 +86,8 @@ async def _send(to: str, subject: str, template: str, context: dict[str, Any]) -
             msg,
             hostname=settings.smtp_host,
             port=settings.smtp_port,
-            username=settings.smtp_user,
-            password=settings.smtp_password,
+            username=settings.smtp_user or None,  # empty in .env means "no login"
+            password=settings.smtp_password or None,
             use_tls=settings.smtp_tls,
             start_tls=settings.smtp_starttls,
             timeout=20,
@@ -194,4 +194,13 @@ def enquiry_received(enquiry: Enquiry, site: dict) -> None:
             ("Message", (enquiry.message or "")[:400]),
         ],
         f"{settings.frontend_url}/admin/enquiries/{enquiry.id}",
+    )
+
+
+def password_reset(email: str, first_name: str, url: str, site: dict) -> None:
+    send_later(
+        email,
+        "Reset your Safiri Nasi password",
+        "password_reset.html",
+        {"site": site, "first_name": first_name, "url": url},
     )

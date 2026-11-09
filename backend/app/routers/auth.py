@@ -7,15 +7,25 @@ from sqlalchemy import func, select, update
 from app.config import settings
 from app.deps import ACCESS_COOKIE, DB, REFRESH_COOKIE, CurrentUser, OptionalUser
 from app.models import Booking, User
-from app.schemas.auth import LoginIn, PasswordChange, ProfileUpdate, RegisterIn, UserOut
+from app.schemas.auth import (
+    ForgotPasswordIn,
+    LoginIn,
+    PasswordChange,
+    ProfileUpdate,
+    RegisterIn,
+    ResetPasswordIn,
+    UserOut,
+)
 from app.schemas.common import Message
 from app.security import (
     create_access_token,
     create_refresh_token,
+    create_reset_token,
     decode_token,
     hash_password,
     verify_password,
 )
+from app.services import notifications, site_settings
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -151,5 +161,37 @@ async def session(
     if not user or not user.is_active or payload.get("ver") != user.token_version:
         _clear_session(response)
         return None
+    _set_session(response, user)
+    return user
+
+
+@router.post("/forgot-password", response_model=Message)
+async def forgot_password(data: ForgotPasswordIn, db: DB):
+    """Always answers the same way so the form can't be used to discover who has an account."""
+    user = await db.scalar(select(User).where(func.lower(User.email) == data.email.lower()))
+    if user and user.is_active:
+        token = create_reset_token(user.id, user.token_version)
+        notifications.password_reset(
+            user.email,
+            user.full_name.split(" ")[0],
+            f"{settings.frontend_url}/reset-password?token={token}",
+            await site_settings.get_all(db),
+        )
+    return Message(message="If an account exists for that email, we've sent a link to reset the password.")
+
+
+@router.post("/reset-password", response_model=UserOut)
+async def reset_password(data: ResetPasswordIn, db: DB, response: Response):
+    payload = decode_token(data.token, "reset")
+    user = await db.get(User, int(payload["sub"])) if payload else None
+    if not user or not user.is_active or payload.get("ver") != user.token_version:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "This reset link is invalid or has already been used."
+        )
+    user.password_hash = hash_password(data.password)
+    user.token_version += 1  # signs out other sessions and retires this link
+    user.last_login_at = datetime.now(UTC)
+    await db.commit()
+    await db.refresh(user)
     _set_session(response, user)
     return user

@@ -51,7 +51,18 @@ export function AuthForm({ mode, next }: { mode: "login" | "register"; next?: st
       <Field label="Email">
         <Input required type="email" autoComplete="email" value={form.email} onChange={set("email")} />
       </Field>
-      <Field label="Password" hint={mode === "register" ? "At least 8 characters" : undefined}>
+      <Field
+        label="Password"
+        hint={
+          mode === "register" ? (
+            "At least 8 characters"
+          ) : (
+            <Link href="/forgot-password" className="font-semibold text-primary underline">
+              Forgot your password?
+            </Link>
+          )
+        }
+      >
         <Input
           required
           type="password"
