@@ -28,7 +28,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useSession, useTheme } from "@/components/providers";
+import { useIsDark, useSession, useTheme } from "@/components/providers";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -70,7 +70,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const { user, loading, setUser } = useSession();
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
+  const isDark = useIsDark();
   const [open, setOpen] = useState(false);
 
   if (!loading && (!user || user.role === "customer")) {
@@ -153,10 +154,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <ExternalLink className="h-4 w-4" /> View website
           </Link>
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(isDark ? "light" : "dark")}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-white/75 hover:bg-white/10"
           >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />} {theme === "dark" ? "Light" : "Dark"} mode
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />} {isDark ? "Light" : "Dark"} mode
           </button>
           <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-white/75 hover:bg-white/10">
             <LogOut className="h-4 w-4" /> Log out

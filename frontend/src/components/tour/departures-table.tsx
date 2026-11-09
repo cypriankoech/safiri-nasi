@@ -5,7 +5,7 @@ import { useState } from "react";
 import { usePrefs } from "@/components/providers";
 import { Badge } from "@/components/ui/misc";
 import { buttonClass } from "@/components/ui/button";
-import { dateRange, money } from "@/lib/format";
+import { dateRange, money, seatsLeft } from "@/lib/format";
 import { adultPrice, hasRate } from "@/lib/pricing";
 import type { Departure, TourPrice } from "@/lib/types";
 
@@ -46,7 +46,7 @@ export function DeparturesTable({
                 <td className="px-4 py-3">
                   <span className="font-semibold">{dateRange(d.start_date, d.end_date)}</span>
                   <span className="mt-0.5 block text-xs sm:hidden">
-                    {d.is_bookable ? `${d.seats_left} seats left` : "Unavailable"}
+                    {d.is_bookable ? seatsLeft(d.seats_left) : "Unavailable"}
                   </span>
                   {d.price_adjustment_percent > 0 && <span className="block text-xs text-sun-strong">Peak season</span>}
                 </td>
@@ -56,9 +56,9 @@ export function DeparturesTable({
                   ) : d.status === "guaranteed" ? (
                     <Badge tone="green">Guaranteed · {d.seats_left} left</Badge>
                   ) : d.seats_left <= 4 ? (
-                    <Badge tone="sun">Only {d.seats_left} left</Badge>
+                    <Badge tone="sun">Only {seatsLeft(d.seats_left)}</Badge>
                   ) : (
-                    <span className="text-muted">{d.seats_left} seats available</span>
+                    <span className="text-muted">{d.seats_left} {d.seats_left === 1 ? "seat" : "seats"} available</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-right font-bold">{price !== null ? money(price, currency) : "–"}</td>

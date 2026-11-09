@@ -41,7 +41,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="flex min-h-dvh flex-col antialiased">
+      {/* Extensions such as Grammarly add attributes to <body> before hydration. */}
+      <body className="flex min-h-dvh flex-col antialiased" suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

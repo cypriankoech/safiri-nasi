@@ -89,6 +89,19 @@ export function applyTheme(theme: Theme) {
 
 export const useTheme = () => useContext(ThemeContext);
 
+/** True when dark styles are applied right now (explicit choice or the system setting). */
+export function useIsDark() {
+  return useSyncExternalStore(
+    (cb) => {
+      const observer = new MutationObserver(cb);
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+      return () => observer.disconnect();
+    },
+    () => document.documentElement.classList.contains("dark"),
+    () => false,
+  );
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
     () =>

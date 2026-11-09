@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { usePrefs, useSession, useTheme } from "@/components/providers";
+import { useIsDark, usePrefs, useSession, useTheme } from "@/components/providers";
 import { buttonClass } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { REGION_LABELS } from "@/lib/format";
@@ -212,7 +212,7 @@ function CurrencySwitch() {
 
 function AccountMenu() {
   const { user } = useSession();
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -233,7 +233,7 @@ function AccountMenu() {
     router.push("/");
   };
 
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
   return (
     <div className="relative" ref={ref}>
       <button

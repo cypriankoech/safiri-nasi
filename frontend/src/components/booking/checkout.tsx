@@ -13,7 +13,7 @@ import { PaymentLogos } from "@/components/site/payment-logos";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Stepper, Textarea } from "@/components/ui/field";
 import { api, bookingTokens } from "@/lib/api";
-import { dateRange, duration, fmtDate, money } from "@/lib/format";
+import { dateRange, duration, fmtDate, money, seatsLeft } from "@/lib/format";
 import { hasRate } from "@/lib/pricing";
 import type { Booking, Currency, Quote, RateCategory, TourDetail } from "@/lib/types";
 import { useClientValue } from "@/lib/use-client-value";
@@ -194,7 +194,7 @@ export function Checkout({ tour, initial }: { tour: TourDetail; initial: Initial
                       >
                         <span className="block font-semibold">{dateRange(d.start_date, d.end_date)}</span>
                         <span className={cn("text-xs", d.seats_left <= 4 ? "font-bold text-maroon" : "text-muted")}>
-                          {d.seats_left} seats left{d.status === "guaranteed" ? " · Guaranteed" : ""}
+                          {seatsLeft(d.seats_left)}{d.status === "guaranteed" ? " · Guaranteed" : ""}
                           {d.price_adjustment_percent > 0 ? " · Peak season" : ""}
                         </span>
                       </button>

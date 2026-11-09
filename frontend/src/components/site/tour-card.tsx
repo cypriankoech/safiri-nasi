@@ -1,7 +1,7 @@
 import { CalendarDays, Clock, MapPin, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { duration, fmtShortDate } from "@/lib/format";
+import { duration, fmtShortDate, seatsLeft } from "@/lib/format";
 import type { TourCard as TourCardType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Badge, Stars } from "../ui/misc";
@@ -73,7 +73,7 @@ export function TourCard({ tour, className, priority }: { tour: TourCardType; cl
           <FromPriceTag resident={tour.resident_from} nonResident={tour.non_resident_from} />
           {fewSeats && (
             <span className="inline-flex items-center gap-1 text-xs font-bold text-maroon">
-              <Users className="h-3.5 w-3.5" /> {tour.next_departure_seats} seats left
+              <Users className="h-3.5 w-3.5" /> {seatsLeft(tour.next_departure_seats ?? 0)}
             </span>
           )}
         </div>

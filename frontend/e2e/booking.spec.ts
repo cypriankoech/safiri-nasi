@@ -4,10 +4,14 @@ test("guest books a safari, pays the deposit by M-Pesa and the balance by card",
   await page.goto("/tours/3-day-maasai-mara-budget-safari");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("3-Day Maasai Mara Budget Safari");
 
-  // Pick a departure far enough out that a deposit is allowed.
-  const bookLinks = page.locator('a[href*="/book/3-day-maasai-mara-budget-safari?departure="]');
-  await bookLinks.nth(5).click();
-  await page.waitForURL(/\/book\//);
+  // Pick a departure with room for 3 that's far enough out for a deposit (earlier runs fill seats).
+  const tour = await (await page.request.get("/api/tours/3-day-maasai-mara-budget-safari")).json();
+  const soonest = Date.now() + 45 * 86400_000;
+  const departure = tour.departures.find(
+    (d: { is_bookable: boolean; seats_left: number; start_date: string }) =>
+      d.is_bookable && d.seats_left >= 3 && Date.parse(d.start_date) > soonest,
+  );
+  await page.goto(`/book/${tour.slug}?departure=${departure.id}&adults=2`, { waitUntil: "networkidle" });
 
   await page.getByRole("checkbox", { name: /Maasai village visit/ }).check();
   await page.getByPlaceholder("Promo code").fill("KARIBU10");
@@ -42,7 +46,7 @@ test("guest books a safari, pays the deposit by M-Pesa and the balance by card",
   await expect(page.getByRole("link", { name: "Travel voucher" })).toBeVisible();
 });
 
-test("M-Pesa refuses an Airtel number", async ({ page, request }) => {
+test("M-Pesa refuses an Airtel number", async ({ request }) => {
   const res = await request.post("/api/bookings", {
     data: {
       tour_slug: "nairobi-national-park-giraffe-centre",

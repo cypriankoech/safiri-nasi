@@ -21,7 +21,7 @@ import { VideoReel } from "@/components/site/video-reel";
 import { WhatsAppIcon } from "@/components/site/whatsapp-button";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge, Container, SectionHeading, Stars } from "@/components/ui/misc";
-import { dateRange, fmtShortDate } from "@/lib/format";
+import { dateRange, fmtShortDate, tripCount } from "@/lib/format";
 import { TRIP_CLIPS } from "@/lib/media";
 import {
   getBlog,
@@ -44,6 +44,7 @@ export default async function HomePage() {
     getBlog(),
   ]);
   const s = site.settings;
+  const shown = Math.min(destinations.length, 6);
   const hero = destinations.find((d) => d.slug === "maasai-mara")?.hero_image ?? destinations[0]?.hero_image;
 
   return (
@@ -95,7 +96,7 @@ export default async function HomePage() {
                 <CategoryIcon name={c.icon} className="h-6 w-6" />
               </span>
               <span className="text-sm leading-tight font-semibold">{c.name}</span>
-              <span className="text-[11px] text-muted">{c.tour_count} trips</span>
+              <span className="text-[11px] text-muted">{tripCount(c.tour_count)}</span>
             </Link>
           ))}
         </div>
@@ -186,7 +187,7 @@ export default async function HomePage() {
                 <div className="p-4">
                   <p className="line-clamp-1 font-bold group-hover:text-lime-strong dark:group-hover:text-lime">{tour.title}</p>
                   <p className={departure.seats_left <= 4 ? "mt-1 text-sm font-bold text-maroon" : "mt-1 text-sm text-muted"}>
-                    {departure.seats_left} of {departure.capacity} seats left
+                    {departure.seats_left} of {departure.capacity} {departure.capacity === 1 ? "seat" : "seats"} left
                   </p>
                   <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
                     Reserve seats <ArrowRight className="h-4 w-4" />
@@ -222,21 +223,21 @@ export default async function HomePage() {
           }
         />
         <div className="grid auto-rows-[200px] grid-cols-2 gap-4 md:auto-rows-[230px] md:grid-cols-4">
-          {destinations.slice(0, 6).map((d, i) => (
+          {destinations.slice(0, shown).map((d, i) => (
             <Link
               key={d.slug}
               href={`/destinations/${d.slug}`}
-              className={`group relative overflow-hidden rounded-3xl bg-surface-3 ${i === 0 ? "col-span-2 row-span-2" : ""} ${i === 3 ? "md:col-span-2" : ""}`}
+              className={`group relative overflow-hidden rounded-3xl bg-surface-3 ${i === 0 ? "col-span-2 row-span-2" : ""} ${i === 3 ? "md:col-span-2" : ""} ${i === shown - 1 && shown % 2 === 0 ? "max-md:col-span-2" : ""}`}
             >
               {d.hero_image && (
                 <Image src={d.hero_image} alt={d.name} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/85 via-forest-deep/10 to-transparent" />
-              <div className="absolute bottom-0 p-5 text-white">
-                <p className="text-xs font-semibold tracking-widest text-lime uppercase">{d.country}</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/90 via-forest-deep/35 to-transparent" />
+              <div className="absolute bottom-0 p-5 text-white [text-shadow:0_1px_8px_rgb(0_0_0/0.45)]">
+                <p className="text-xs font-semibold tracking-widest text-sun uppercase">{d.country}</p>
                 <h3 className={i === 0 ? "text-3xl font-extrabold" : "text-xl font-bold"}>{d.name}</h3>
                 {i === 0 && <p className="mt-1 max-w-sm text-sm text-white/80">{d.summary}</p>}
-                <p className="mt-1 text-xs text-white/70">{d.tour_count} trips</p>
+                <p className="mt-1 text-xs text-white/70">{tripCount(d.tour_count)}</p>
               </div>
             </Link>
           ))}

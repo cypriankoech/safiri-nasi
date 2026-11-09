@@ -13,7 +13,7 @@ import { compactMoney, fmtDateTime, fmtShortDate, METHOD_LABELS, money } from "@
 const METHOD_COLORS: Record<string, string> = {
   mpesa: "#3aa935",
   airtel: "#e3262b",
-  card: "#1e3b1c",
+  card: "#3b82c4", // blue: the brand forest green vanishes on the dark theme
   paybill: "#7dc242",
   bank: "#8f8f1e",
   cash: "#f29f1d",
@@ -88,7 +88,7 @@ export default function DashboardPage() {
               <div className="h-44">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={data.revenue_by_method} dataKey="kes" nameKey="method" innerRadius={45} outerRadius={75} paddingAngle={2}>
+                    <Pie data={data.revenue_by_method} dataKey="kes" nameKey="method" innerRadius={45} outerRadius={75} paddingAngle={2} stroke="var(--surface)">
                       {data.revenue_by_method.map((m) => (
                         <Cell key={m.method} fill={METHOD_COLORS[m.method] ?? "#999"} />
                       ))}

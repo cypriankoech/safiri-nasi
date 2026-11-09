@@ -76,3 +76,7 @@ export const TOUR_TYPE_LABELS = {
 } as const;
 
 export const REGION_LABELS = { kenya: "Kenya", africa: "Africa", international: "International" } as const;
+
+export const tripCount = (n: number) => `${n} trip${n === 1 ? "" : "s"}`;
+
+export const seatsLeft = (n: number) => `${n} seat${n === 1 ? "" : "s"} left`;

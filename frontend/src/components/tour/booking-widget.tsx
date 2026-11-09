@@ -10,7 +10,7 @@ import { WhatsAppIcon } from "@/components/site/whatsapp-button";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Input, Select, Stepper } from "@/components/ui/field";
 import { api } from "@/lib/api";
-import { dateRange, money } from "@/lib/format";
+import { dateRange, money, seatsLeft } from "@/lib/format";
 import { adultPrice, hasRate } from "@/lib/pricing";
 import type { Quote, RateCategory, TourDetail } from "@/lib/types";
 import { useClientValue } from "@/lib/use-client-value";
@@ -116,7 +116,7 @@ export function BookingWidget({ tour, usdToKes, whatsapp }: { tour: TourDetail; 
               <Select value={departureId ?? ""} onChange={(e) => setDepartureId(Number(e.target.value))}>
                 {bookable.map((d) => (
                   <option key={d.id} value={d.id}>
-                    {dateRange(d.start_date, d.end_date)} · {d.seats_left} seats left
+                    {dateRange(d.start_date, d.end_date)} · {seatsLeft(d.seats_left)}
                   </option>
                 ))}
               </Select>

@@ -54,7 +54,7 @@ function Clip({ clip, className }: { clip: TripClip; className?: string }) {
         aria-label={clip.caption}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest-deep/85 via-transparent to-transparent" />
-      <figcaption className="absolute inset-x-0 bottom-0 p-4 pr-14 text-sm font-semibold text-white">{clip.caption}</figcaption>
+      <figcaption className="absolute inset-x-0 bottom-0 p-3 pr-12 text-xs leading-snug font-semibold text-white sm:p-4 sm:pr-14 sm:text-sm">{clip.caption}</figcaption>
       <button
         onClick={toggle}
         className="absolute right-3 bottom-3 grid h-9 w-9 place-items-center rounded-full bg-white/20 text-white backdrop-blur transition hover:bg-white/35"
@@ -77,7 +77,7 @@ export function VideoReel({ clips }: { clips: TripClip[] }) {
           className={cn(
             clip.orientation === "landscape" && "col-span-2",
             clip.orientation === "portrait" && "row-span-2",
-            clip.orientation === "square" && "col-span-1 row-span-1 md:col-span-2 md:row-span-2",
+            clip.orientation === "square" && "col-span-1 row-span-2 md:col-span-2",
           )}
         />
       ))}
