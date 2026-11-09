@@ -2,6 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,8 +39,8 @@ class Settings(BaseSettings):
     smtp_password: str | None = None
     smtp_tls: bool = False
     smtp_starttls: bool = False
-    mail_from: str = "Safiri Nasi <bookings@safirinasi.co.ke>"
-    admin_notify_email: str = "admin@safirinasi.co.ke"
+    mail_from: str = "Safiri Nasi <bookings@safirinasitourstravel.co.ke>"
+    admin_notify_email: str = "admin@safirinasitourstravel.co.ke"
     send_emails: bool = True
 
     # Booking behaviour
@@ -74,8 +75,18 @@ class Settings(BaseSettings):
     upload_dir: Path = BASE_DIR / "uploads"
     max_upload_mb: int = 8
 
-    seed_admin_email: str = "admin@safirinasi.co.ke"
+    seed_admin_email: str = "admin@safirinasitourstravel.co.ke"
     seed_admin_password: str = "SafiriAdmin#2026"
+
+    @field_validator("database_url")
+    @classmethod
+    def use_asyncpg(cls, url: str) -> str:
+        """Accept the plain postgres:// URLs that hosts (Render, Neon, Supabase) hand out."""
+        for prefix in ("postgres://", "postgresql://"):
+            if url.startswith(prefix):
+                url = "postgresql+asyncpg://" + url[len(prefix) :]
+        # asyncpg spells libpq's sslmode=require as ssl=require
+        return url.replace("sslmode=", "ssl=")
 
     @property
     def is_production(self) -> bool:

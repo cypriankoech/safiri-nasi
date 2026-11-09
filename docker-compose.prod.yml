@@ -1,6 +1,6 @@
 # Production stack.
 #   cp backend/.env.example backend/.env.production   # then set real secrets and provider keys
-#   SITE_URL=https://safirinasi.co.ke docker compose -f docker-compose.prod.yml up -d --build
+#   SITE_URL=https://safirinasitourstravel.co.ke docker compose -f docker-compose.prod.yml up -d --build
 # Put a TLS-terminating reverse proxy (Caddy, Nginx, Traefik) in front of port 3000 and
 # route https://api.<domain> (or /api/callbacks) to port 8000 for payment callbacks.
 name: safirinasi-prod

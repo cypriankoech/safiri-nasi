@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 FROM python:3.12-slim AS base
 
 # WeasyPrint needs Pango/HarfBuzz for PDF rendering
@@ -26,4 +25,7 @@ COPY . .
 RUN useradd --system --uid 10001 app && mkdir -p uploads && chown -R app:app uploads
 USER app
 EXPOSE 8000
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2 --proxy-headers --forwarded-allow-ips='*'"]
+# One worker: the in-process scheduler (hold expiry, reminders) must run exactly once.
+# PORT is set by hosts such as Render; it defaults to 8000.
+# SEED_ON_START=true loads the starter catalogue into an empty database (handy for previews).
+CMD ["sh", "-c", "alembic upgrade head && if [ \"$SEED_ON_START\" = true ]; then python -m app.seed --if-empty; fi && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

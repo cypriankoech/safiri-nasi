@@ -9,7 +9,7 @@ from app.models import SiteSetting
 DEFAULTS: dict[str, Any] = {
     "company_name": "Safiri Nasi Tour & Travel",
     "tagline": "Travel with us. Discover more.",
-    "email": "hello@safirinasi.co.ke",
+    "email": "hello@safirinasitourstravel.co.ke",
     "phone": "+254 700 000 000",
     "whatsapp": "254700000000",
     "address": "Nairobi, Kenya",

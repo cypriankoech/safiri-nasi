@@ -32,8 +32,8 @@ Seeded logins:
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@safirinasi.co.ke | `SafiriAdmin#2026` |
-| Staff | staff@safirinasi.co.ke | `SafiriStaff#2026` |
+| Admin | admin@safirinasitourstravel.co.ke | `SafiriAdmin#2026` |
+| Staff | staff@safirinasitourstravel.co.ke | `SafiriStaff#2026` |
 | Customer | traveller@example.com | `Traveller#2026` |
 
 Code changes reload automatically (both apps are bind-mounted). Each container has CPU and memory
@@ -99,13 +99,18 @@ table), and no payment is credited until the provider confirms it with a status 
 Also set in **Admin → Settings**: Paybill number shown to customers, bank details, WhatsApp
 number, USD→KES rate and which payment methods are offered.
 
+## Preview deployment (Vercel + Render)
+
+For a free, shareable preview see **[docs/deploy-preview.md](docs/deploy-preview.md)**: the website on
+Vercel, the API and database on Render via the included `render.yaml` blueprint.
+
 ## Production
 
 ```bash
 cp backend/.env.example backend/.env.production     # real SECRET_KEY, CALLBACK_SECRET, SMTP, provider keys,
                                                     # FRONTEND_URL, PUBLIC_API_URL, COOKIE_SECURE=true
 export POSTGRES_PASSWORD='a-long-random-password'
-SITE_URL=https://safirinasi.co.ke API_PUBLIC_URL=https://api.safirinasi.co.ke \
+SITE_URL=https://safirinasitourstravel.co.ke API_PUBLIC_URL=https://api.safirinasitourstravel.co.ke \
   docker compose -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.prod.yml exec backend python -m app.seed --no-demo   # first deploy only
 ```

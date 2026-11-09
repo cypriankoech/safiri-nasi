@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/login?next=/admin");
-  await page.getByLabel("Email", { exact: true }).fill("admin@safirinasi.co.ke");
+  await page.getByLabel("Email", { exact: true }).fill("admin@safirinasitourstravel.co.ke");
   await page.getByLabel("Password").fill("SafiriAdmin#2026");
   await page.getByRole("button", { name: "Log in" }).click();
   await page.waitForURL((url) => url.pathname === "/admin");

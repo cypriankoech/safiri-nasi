@@ -12,6 +12,7 @@ import argparse
 import asyncio
 import json
 import random
+import secrets
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -1426,11 +1427,17 @@ async def reset_database() -> None:
         await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
 
 
-async def seed(demo: bool) -> None:
+async def seed(demo: bool, if_empty: bool = False) -> None:
     rng = random.Random(42)
     async with SessionLocal() as db:
         if await db.scalar(select(Tour.id).limit(1)):
+            if if_empty:
+                print("Database already has data; skipping seed.")
+                return
             raise SystemExit("Database already has tours. Use --reset to wipe and re-seed.")
+        # The demo passwords below are public (README); never use them on a deployed site.
+        staff_password = secrets.token_urlsafe(18) if settings.is_production else "SafiriStaff#2026"
+        customer_password = secrets.token_urlsafe(18) if settings.is_production else "Traveller#2026"
 
         admin = User(
             email=settings.seed_admin_email,
@@ -1440,16 +1447,16 @@ async def seed(demo: bool) -> None:
             phone="+254700000000",
         )
         staff = User(
-            email="staff@safirinasi.co.ke",
+            email="staff@safirinasitourstravel.co.ke",
             full_name="Jane Wambui",
             role=Role.staff,
-            password_hash=hash_password("SafiriStaff#2026"),
+            password_hash=hash_password(staff_password),
         )
         customer = User(
             email="traveller@example.com",
             full_name="Amani Traveller",
             role=Role.customer,
-            password_hash=hash_password("Traveller#2026"),
+            password_hash=hash_password(customer_password),
             phone="+254712345678",
             country="Kenya",
         )
@@ -1660,9 +1667,13 @@ async def seed(demo: bool) -> None:
             await seed_demo_bookings(db, tours, customer, admin, rng)
         await db.commit()
         print(f"Seeded {len(tours)} tours, {len(destinations)} destinations.")
-        print(f"Admin login: {settings.seed_admin_email} / {settings.seed_admin_password}")
-        print("Staff login: staff@safirinasi.co.ke / SafiriStaff#2026")
-        print("Customer login: traveller@example.com / Traveller#2026")
+        if settings.is_production:
+            print(f"Admin login: {settings.seed_admin_email} (password from SEED_ADMIN_PASSWORD)")
+        else:
+            print(f"Admin login: {settings.seed_admin_email} / {settings.seed_admin_password}")
+        if not settings.is_production:
+            print(f"Staff login: staff@safirinasitourstravel.co.ke / {staff_password}")
+            print(f"Customer login: traveller@example.com / {customer_password}")
 
 
 NAMES = [
@@ -1809,12 +1820,13 @@ async def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--reset", action="store_true", help="wipe all data first")
     parser.add_argument("--no-demo", action="store_true", help="skip sample bookings and payments")
+    parser.add_argument("--if-empty", action="store_true", help="do nothing if the database already has data")
     args = parser.parse_args()
     if args.reset:
         if settings.is_production:
             raise SystemExit("Refusing to reset a production database.")
         await reset_database()
-    await seed(demo=not args.no_demo)
+    await seed(demo=not args.no_demo, if_empty=args.if_empty)
     await engine.dispose()
 
 
